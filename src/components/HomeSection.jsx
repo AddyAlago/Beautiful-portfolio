@@ -4,6 +4,7 @@ export const HomeSection = () => {
   return (
     <section
       id="home"
+      data-testid="section-home"
       className="relative min-h-screen flex flex-col items-center justify-center px-4"
     >
       <div className="container max-w-4xl mx-auto text-center z-10">
@@ -29,7 +30,7 @@ export const HomeSection = () => {
               class="w-60 h-60 rounded-full object-cover block mx-auto"
             />
           <div className="pt-4 opacity-0 animate-fade-in-delay-4">
-            <a href="#projects" className="cosmic-button">
+            <a href="#projects" className="cosmic-button" data-testid="button-view-work">
               View My Work
             </a>
           </div>

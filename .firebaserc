@@ -1,5 +1,10 @@
 {
   "projects": {
-    "default": "portfolio2"
-  }
+    "default": "portfolio2",
+    "prod": "portfolio2-bf633",
+    "portfolio2": "portfolio2-bf633",
+    "public": "portfolio2-bf633"
+  },
+  "targets": {},
+  "etags": {}
 }

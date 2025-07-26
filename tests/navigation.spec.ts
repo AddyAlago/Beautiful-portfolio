@@ -23,7 +23,7 @@ test.describe('Navbar scroll behavior', () => {
       }
 
       await page.click(navSelector);
-
+      await page.waitForTimeout(600);
       const topSection = await getSectionClosestToTop(page);
       expect(topSection).toBe(expectedSectionTestId);
     });

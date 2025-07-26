@@ -15,7 +15,7 @@ jobs:
     steps:
     # Checkout the repository code
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v4
 
     # Set up Node.js
     - name: Set up Node.js
@@ -32,6 +32,18 @@ jobs:
     # Run Playwright tests
     - name: Run Playwright tests
       run: npx playwright test --reporter=github
+    # Save Playwright test results
+    - name: Copy report to docs folder
+      run: |
+          rm -rf docs
+          mkdir -p docs
+          cp -r playwright-report/* docs/
+    # commit and push report
+    - name: Push report to GitHub Pages
+      uses: stefanweifel/git-push-action@v5
+      with:
+        commit_message: "Update Playwright report"
+        file_pattern: docs/**
 
     # Upload Playwright test results to GitHub Actions artifacts
     - name: Upload test results as artifact

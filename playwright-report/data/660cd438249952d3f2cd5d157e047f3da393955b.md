@@ -17,6 +17,8 @@
     - /url: "#projects"
   - link "Contact":
     - /url: "#contact"
+  - link "Tests":
+    - /url: https://addyalago.github.io/Beautiful-portfolio/
   - link "Resume":
     - /url: https://drive.google.com/file/d/1Ttln3b5_RWDozxSC51wLPDfIU-_OkRGa/view?usp=sharing
 - main:
@@ -122,11 +124,11 @@
     - /url: https://www.linkedin.com/in/addicuss/
   - heading "Send a Message" [level=3]
   - text: Your Name
-  - textbox "Your Name": Jane Doe
+  - textbox "Your Name": Zoë O'Connor
   - text: Your Email
-  - textbox "Your Email": jane@example.com
+  - textbox "Your Email": zoe.o'connor@example.co.uk
   - text: Your Message
-  - textbox "Your Message": Clear this out!
+  - textbox "Your Message": This is a perfectly fine message.
   - button "Sending..." [disabled]
 - contentinfo:
   - paragraph

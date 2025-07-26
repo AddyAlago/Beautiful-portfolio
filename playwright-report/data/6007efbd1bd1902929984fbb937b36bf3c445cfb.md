@@ -2,7 +2,10 @@
 
 ```yaml
 - region "Notifications (F8)":
-  - list
+  - list:
+    - status:
+      - text: Message sent! Thank you for your message. I'll get back to you soon.
+      - button
 - button
 - navigation:
   - link "Addy Alago Portfolio":
@@ -17,6 +20,8 @@
     - /url: "#projects"
   - link "Contact":
     - /url: "#contact"
+  - link "Tests":
+    - /url: https://addyalago.github.io/Beautiful-portfolio/
   - link "Resume":
     - /url: https://drive.google.com/file/d/1Ttln3b5_RWDozxSC51wLPDfIU-_OkRGa/view?usp=sharing
 - main:
@@ -122,14 +127,15 @@
     - /url: https://www.linkedin.com/in/addicuss/
   - heading "Send a Message" [level=3]
   - text: Your Name
-  - textbox "Your Name": Attacker
+  - textbox "Your Name"
   - text: Your Email
-  - textbox "Your Email": evil@example.com
+  - textbox "Your Email"
   - text: Your Message
-  - textbox "Your Message": <script>alert("xss")</script>
-  - button "Sending..." [disabled]
+  - textbox "Your Message"
+  - button "Send Message"
 - contentinfo:
   - paragraph
   - link:
     - /url: "#home"
+- status: Notification Message sent!Thank you for your message. I'll get back to you soon.
 ```

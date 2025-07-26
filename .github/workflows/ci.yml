@@ -11,39 +11,38 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: write  
+      contents: write  # ✅ Allows committing back to main branch
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
 
       - name: Install dependencies
         run: |
-          npm install
+          npm ci
           npx playwright install
 
-      - name: Run Playwright tests and generate HTML report
+      - name: Run Playwright tests with HTML report
         run: npx playwright test --reporter=html
 
-      - name: Copy report to docs folder
+      - name: Show contents of playwright-report (for debug)
+        run: ls -R playwright-report
+
+      - name: Copy report to docs/
         run: |
           rm -rf docs
           mkdir -p docs
           cp -r playwright-report/* docs/
+          echo "Contents of docs/"
+          ls -R docs
 
-      - name: Push report to GitHub Pages
+      - name: Auto commit docs folder
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Update Playwright report"
+          commit_message: "chore: update Playwright report in docs/"
           file_pattern: docs/**
-
-      - name: Upload HTML report as artifact (optional)
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-html-report
-          path: playwright-report/

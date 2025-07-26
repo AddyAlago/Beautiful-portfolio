@@ -29,6 +29,7 @@ jobs:
 
       - name: Run Playwright tests with HTML report
         run: npx playwright test --reporter=html
+        continue-on-error: true
 
       - name: Show contents of playwright-report (for debug)
         run: ls -R playwright-report

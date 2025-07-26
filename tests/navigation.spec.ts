@@ -54,3 +54,34 @@ test('Resume link navigates to correct Google Drive URL', async ({ page, context
   await newPage.waitForLoadState();
   expect(newPage.url()).toMatch(/^https:\/\/drive\.google\.com\/.+/);
 });
+
+
+test('should add dark class to <html> when dark mode is enabled', async ({ page }) => {
+  await page.goto('/');  
+
+  // Check if the 'dark' class is present on the <html> element
+  const htmlElement = page.locator('html');
+  page.getByTestId('theme-toggle').click(),
+  await expect(htmlElement).toHaveClass('dark');
+});
+
+test('should not have dark class on <html> when dark mode is not enabled', async ({ page }) => {
+  await page.goto('/');  
+
+  
+  const htmlClass = await page.evaluate(() => document.documentElement.className);
+  const htmlElement = page.locator('html');
+
+  await expect(htmlElement).not.toHaveClass('dark');
+});
+
+test('should not have dark class on <html> when dark mode is toggled on and off', async ({ page }) => {
+  await page.goto('/');  
+
+  
+  const htmlClass = await page.evaluate(() => document.documentElement.className);
+  const htmlElement = page.locator('html');
+  page.getByTestId('theme-toggle').click(),
+  page.getByTestId('theme-toggle').click(),
+  await expect(htmlElement).not.toHaveClass('dark');
+});

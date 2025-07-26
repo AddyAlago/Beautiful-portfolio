@@ -1,0 +1,41 @@
+name: Run Playwright Tests
+
+on:
+  push:
+    branches:
+      - main  # Runs on push to the main branch
+  pull_request:
+    branches:
+      - main  # Runs on pull request to the main branch
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Checkout the repository code
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # Set up Node.js
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'  # You can change the version based on your project
+
+    # Install dependencies
+    - name: Install dependencies
+      run: |
+        npm install
+        npx playwright install  # Install Playwright browsers
+
+    # Run Playwright tests
+    - name: Run Playwright tests
+      run: npx playwright test --reporter=github
+
+    # Upload Playwright test results to GitHub Actions artifacts
+    - name: Upload test results as artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: playwright-test-results
+        path: test-results  # Path where Playwright stores test results

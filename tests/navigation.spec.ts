@@ -23,7 +23,6 @@ test.describe('Navbar scroll behavior', () => {
       }
 
       await page.click(navSelector);
-      await page.waitForTimeout(600); // let smooth scroll finish
 
       const topSection = await getSectionClosestToTop(page);
       expect(topSection).toBe(expectedSectionTestId);

@@ -7,6 +7,8 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     trace: 'on-first-retry',
   },
+  fullyParallel: true,
+  reporter: 'html',
   webServer: {
     command: 'npm run dev', // or 'vite' if you're using it directly
     port: 5173,              // default Vite port; change if needed

@@ -1,0 +1,138 @@
+# Page snapshot
+
+```yaml
+- region "Notifications (F8)":
+  - list:
+    - status:
+      - text: Message sent! Thank you for your message. I'll get back to you soon.
+      - button
+- button
+- navigation:
+  - link "Addy Alago Portfolio":
+    - /url: "#home"
+  - link "Home":
+    - /url: "#home"
+  - link "About":
+    - /url: "#about"
+  - link "Skills":
+    - /url: "#skills"
+  - link "Projects":
+    - /url: "#projects"
+  - link "Contact":
+    - /url: "#contact"
+  - link "Resume":
+    - /url: https://drive.google.com/file/d/1Ttln3b5_RWDozxSC51wLPDfIU-_OkRGa/view?usp=sharing
+- main:
+  - heading "Welcome, I'm Addy Alago" [level=1]
+  - paragraph: For over 10 years, it has been my passion to deliver high quality software through rigorous testing and automation.
+  - img
+  - link "View My Work":
+    - /url: "#projects"
+  - text: Scroll
+  - heading "About Me" [level=2]
+  - heading "Software QA Automation Engineer and Manager with over 10 years of experience in test automation." [level=3]
+  - paragraph: Passionate leader, and mentor with a proven track record of building and leading high-performing teams.
+  - paragraph: I excel in fostering a culture of quality and continuous improvement, ensuring that software products meet the highest standards of excellence.
+  - link "Contact":
+    - /url: "#contact"
+  - link "Download Resume":
+    - /url: https://drive.google.com/file/d/1Ttln3b5_RWDozxSC51wLPDfIU-_OkRGa/view?usp=sharing
+  - heading "Test Automation" [level=4]
+  - paragraph: Creating first in class test automation with modern frameworks such as Playwright, Cypress, and Appium.
+  - heading "People Management" [level=4]
+  - paragraph: I excel in people management. I pride myself on being a mentor and a leader that puts his team's career development first.
+  - heading "Well Rounded" [level=4]
+  - paragraph: Quality is achieved by more than just testing, I am a certfieid scrum master (SCM) as well as a certified project manager (CSPO) which enables me to take a holistic approach to software quality.
+  - heading "My Skills" [level=2]
+  - button "all"
+  - button "certifications"
+  - button "technologies"
+  - heading "Certified ScrumMaster (CSM)" [level=3]
+  - text: 100%
+  - heading "Certified Scrum Product Owner® (CSPO)" [level=3]
+  - text: 100%
+  - heading "WAI0.1x Accesibility" [level=3]
+  - text: 100%
+  - heading "Certified SAFe® 6 Agilist" [level=3]
+  - text: 100%
+  - heading "Certified Tester, ASTQB/ISTQB" [level=3]
+  - text: 100%
+  - heading "HTML/CSS" [level=3]
+  - text: 95%
+  - heading "C#" [level=3]
+  - text: 90%
+  - heading "React" [level=3]
+  - text: 90%
+  - heading "TypeScript" [level=3]
+  - text: 85%
+  - heading "Pytest" [level=3]
+  - text: 90%
+  - heading "Cypress" [level=3]
+  - text: 95%
+  - heading "Appium" [level=3]
+  - text: 90%
+  - heading "Playwright" [level=3]
+  - text: 90%
+  - heading "Node.js" [level=3]
+  - text: 80%
+  - heading "SQL" [level=3]
+  - text: 90%
+  - heading "Saucelabs" [level=3]
+  - text: 70%
+  - heading "Firebase" [level=3]
+  - text: 85%
+  - heading "Featured Projects" [level=2]
+  - paragraph: Here are some of my recent projects. Each project was carefully crafted with attention to detail, performance, and user experience.
+  - img "Visual Diff Framework"
+  - text: Javascript Backstop Regression Testing
+  - heading "Visual Diff Framework" [level=3]
+  - paragraph: A simple tool to visually compare visual differences between production and staging environments.
+  - link:
+    - /url: https://github.com/AddyAlago/VisualDiffSuite
+  - link:
+    - /url: https://github.com/AddyAlago/VisualDiffSuite
+  - img "Grid News Cypress Framework"
+  - text: Cypress Typescript Startup Launch
+  - heading "Grid News Cypress Framework" [level=3]
+  - paragraph: Behavior driven Cypress testing framework for Grid News launch
+  - link:
+    - /url: https://github.com/AddyAlago/CypressIntegration
+  - link:
+    - /url: https://github.com/AddyAlago/CypressIntegration
+  - img "Lighthouse server"
+  - text: Google Lighthouse Typescript Accessibility
+  - heading "Lighthouse server" [level=3]
+  - paragraph: Fully automated Lighthouse server for performance testing and reporting on each new buils.
+  - link:
+    - /url: https://github.com/AddyAlago/lhci
+  - link:
+    - /url: https://github.com/AddyAlago/lhci
+  - link "Check My Github":
+    - /url: https://github.com/AddyAlago
+  - heading "Get In Touch" [level=2]
+  - paragraph: Have a project in mind or want to collaborate? Feel free to reach out. I'm always open to discussing new opportunities.
+  - heading "Contact Information" [level=3]
+  - heading "Email" [level=4]
+  - link "me@addicuss.com":
+    - /url: mailto:me@addicuss.com
+  - heading "Phone" [level=4]
+  - link "+1 (540) 466-4770":
+    - /url: tel:+15404664770
+  - heading "Location" [level=4]
+  - text: Harrisonburg, Virginia 22802
+  - heading "Connect With Me" [level=4]
+  - link:
+    - /url: https://www.linkedin.com/in/addicuss/
+  - heading "Send a Message" [level=3]
+  - text: Your Name
+  - textbox "Your Name"
+  - text: Your Email
+  - textbox "Your Email"
+  - text: Your Message
+  - textbox "Your Message"
+  - button "Send Message"
+- contentinfo:
+  - paragraph
+  - link:
+    - /url: "#home"
+```

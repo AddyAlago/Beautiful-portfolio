@@ -2,52 +2,48 @@ name: Run Playwright Tests
 
 on:
   push:
-    branches:
-      - main  # Runs on push to the main branch
+    branches: [main]
   pull_request:
-    branches:
-      - main  # Runs on pull request to the main branch
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
+    permissions:
+      contents: write  
+
     steps:
-    # Checkout the repository code
-    - name: Checkout code
-      uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    # Set up Node.js
-    - name: Set up Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '20'  # You can change the version based on your project
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
 
-    # Install dependencies
-    - name: Install dependencies
-      run: |
-        npm install
-        npx playwright install  # Install Playwright browsers
+      - name: Install dependencies
+        run: |
+          npm install
+          npx playwright install
 
-    # Run Playwright tests
-    - name: Run Playwright tests
-      run: npx playwright test --reporter=github
-    # Save Playwright test results
-    - name: Copy report to docs folder
-      run: |
+      - name: Run Playwright tests and generate HTML report
+        run: npx playwright test --reporter=html
+
+      - name: Copy report to docs folder
+        run: |
           rm -rf docs
           mkdir -p docs
           cp -r playwright-report/* docs/
-    # commit and push report
-    - name: Push report to GitHub Pages
-      uses: stefanzweifel/git-auto-commit-action@v5
-      with:
-        commit_message: "Update Playwright report"
-        file_pattern: docs/**
 
-    # Upload Playwright test results to GitHub Actions artifacts
-    - name: Upload test results as artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: playwright-test-results
-        path: test-results  # Path where Playwright stores test results
+      - name: Push report to GitHub Pages
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update Playwright report"
+          file_pattern: docs/**
+
+      - name: Upload HTML report as artifact (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-html-report
+          path: playwright-report/

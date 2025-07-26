@@ -20,11 +20,9 @@ test.describe('Navbar scroll behavior', () => {
       if (label === 'Home') {
         // Scroll away from top to ensure it's a real scroll
         await page.click('nav >> text=Contact');
-        await page.waitForTimeout(600);
       }
 
       await page.click(navSelector);
-      await page.waitForTimeout(600);
       const topSection = await getSectionClosestToTop(page);
       expect(topSection).toBe(expectedSectionTestId);
     });

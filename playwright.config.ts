@@ -1,19 +1,27 @@
-import { defineConfig } from '@playwright/test';
-import dotenv from 'dotenv';
+import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
+  testDir: 'tests/e2e/specs',
+  use: { baseURL: process.env.BASE_URL || 'http://localhost:5173' },
+  reporter: [['html', { outputFolder: 'reports/html', open: 'never' }], ['list']],
+  outputDir: 'tests/e2e/.output',
+  snapshotDir: 'tests/e2e/__snapshots__',
   use: {
-    baseURL: process.env.BASE_URL ?? 'http://localhost:5173', // Set the base URL for your tests
+    baseURL: process.env.BASE_URL || 'http://localhost:5173',
+    headless: true,
+    viewport: { width: 1280, height: 800 },
+    trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
-    trace: 'on-first-retry',
+    video: 'retain-on-failure',
   },
-  fullyParallel: true,
-  reporter: 'html',
-  webServer: {
-    command: 'npm run dev', // or 'vite' if you're using it directly
-    port: 5173,              // default Vite port; change if needed
-    timeout: 120 * 1000,
+  webServer: process.env.BASE_URL ? undefined : {
+    command: 'npm run dev -- --port 5173',
+    url: 'http://localhost:5173',
     reuseExistingServer: !process.env.CI,
-
+    timeout: 60_000,
   },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox',  use: { ...devices['Desktop Firefox'] } },
+  ],
 });

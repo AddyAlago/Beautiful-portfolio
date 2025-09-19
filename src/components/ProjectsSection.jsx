@@ -1,5 +1,6 @@
 import { ArrowRight, ExternalLink, Github } from "lucide-react";
 
+
 const projects = [
   {
     id: 1,

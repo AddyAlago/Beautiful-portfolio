@@ -1,5 +1,11 @@
 import { Briefcase, Code, User } from "lucide-react";
-
+export default function About() {
+  return (
+    <section id="about" data-testid="section-about" className="...">
+      {/* ... */}
+    </section>
+  );
+}
 export const AboutSection = () => {
   return (
     <section id="about" data-testid="section-about" className="py-24 px-4 relative">

@@ -1,40 +1,57 @@
 // tests/e2e/specs/a11y.spec.ts
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { writeFileSync, mkdirSync } from 'fs';
-import path from 'path';
 
-test('no serious a11y violations on key pages', async ({ page }) => {
-  await page.goto('/');
+const IDS = ['about', 'projects', 'skills', 'contact'] as const;
 
-  const results = await new AxeBuilder({ page })
-    .withTags(['wcag2a', 'wcag2aa'])
-    .analyze();
+function sel(id: string) {
+  return `[data-testid="section-${id}"], #${id}`;
+}
 
-  // collect blocking issues
-  const blocking = results.violations.filter(v =>
-    ['serious', 'critical'].includes((v.impact ?? '').toLowerCase())
-  );
+async function runA11y(page: Page, contextSelector?: string) {
+  // Make geometry deterministic for axe (no smooth scroll/animations)
+  await page.addStyleTag({
+    content: `
+      html { scroll-behavior: auto !important; }
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    `,
+  });
 
-  // if there are violations, persist a JSON report for CI
-  if (blocking.length) {
-    const outDir = path.join('test-results', 'a11y');
-    mkdirSync(outDir, { recursive: true });
-    writeFileSync(
-      path.join(outDir, 'axe-report.json'),
-      JSON.stringify(
-        { url: page.url(), summary: { blockingCount: blocking.length }, violations: blocking },
-        null,
-        2
-      ),
-      'utf-8'
-    );
+  let builder = new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']);
 
-    // nice console output for local runs
-    console.log('A11y violations (serious/critical):',
-      blocking.map(v => ({ id: v.id, impact: v.impact, help: v.help }))
-    );
+  if (contextSelector) {
+    builder = builder.include(contextSelector);
   }
 
-  expect(blocking, 'No serious/critical accessibility violations expected').toEqual([]);
+  const results = await builder.analyze();
+
+  // Only fail on serious/critical to keep signal high in CI
+  const severe = results.violations.filter(v =>
+    ['serious', 'critical'].includes((v.impact || '').toLowerCase())
+  );
+
+  // Helpful failure message
+  expect(
+    severe,
+    `A11Y violations (${severe.length}):\n` +
+      severe
+        .map(v => `- [${v.impact}] ${v.id}: ${v.help} (${v.nodes.length} nodes)`)
+        .join('\n')
+  ).toEqual([]);
+}
+
+test.describe('Accessibility [a11y]', () => {
+  test('home has no serious/critical violations [a11y]', async ({ page }: { page: Page }) => {
+    await page.goto('/');
+    await runA11y(page); // scan whole page
+  });
+
+  // One test per section for clearer reporting
+  for (const id of IDS) {
+    test(`${id} section has no serious/critical violations [a11y]`, async ({ page }: { page: Page }) => {
+      await page.goto('/');
+      await page.locator(sel(id)).first().waitFor({ state: 'visible' });
+      await runA11y(page, sel(id)); // scope axe to the section
+    });
+  }
 });

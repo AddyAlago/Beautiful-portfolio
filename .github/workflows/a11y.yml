@@ -44,3 +44,4 @@ jobs:
         with:
           name: a11y-playwright-report
           path: playwright-report
+          retention-days: 7

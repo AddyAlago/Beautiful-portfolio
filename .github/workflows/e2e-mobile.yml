@@ -1,0 +1,12 @@
+name: E2E Mobile
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  call-core:
+    uses: ./.github/workflows/e2e-core.yml
+    with:
+      project_name: Mobile Safari
+      artifact_prefix: mobile

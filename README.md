@@ -1,6 +1,7 @@
 # Beautiful Portfolio
 
-[![E2E Tests](https://github.com/AddyAlago/Beautiful-portfolio/actions/workflows/e2e.yml/badge.svg?branch=main)](https://github.com/AddyAlago/Beautiful-portfolio/actions/workflows/e2e.yml)
+[![E2E Desktop](https://img.shields.io/github/actions/workflow/status/AddyAlago/Beautiful-portfolio/e2e-desktop.yml?branch=main&label=E2E%20Desktop)](https://github.com/AddyAlago/Beautiful-portfolio/actions/workflows/e2e-desktop.yml)
+[![E2E Mobile](https://img.shields.io/github/actions/workflow/status/AddyAlago/Beautiful-portfolio/e2e-mobile.yml?branch=main&label=E2E%20Mobile)](https://github.com/AddyAlago/Beautiful-portfolio/actions/workflows/e2e-mobile.yml)
 [![A11Y Tests](https://github.com/AddyAlago/Beautiful-portfolio/actions/workflows/a11y.yml/badge.svg?branch=main)](https://github.com/AddyAlago/Beautiful-portfolio/actions/workflows/a11y.yml)
 
 A modern React + Tailwind portfolio site with **production-grade automated testing**.

@@ -1,0 +1,65 @@
+name: E2E Core
+
+on:
+  workflow_call:
+    inputs:
+      project_name:
+        description: 'Playwright project name (must match playwright.config.ts)'
+        required: true
+        type: string
+      artifact_prefix:
+        description: 'Prefix for artifact names (e.g., desktop, mobile)'
+        required: true
+        type: string
+      node_version:
+        description: 'Node version'
+        required: false
+        default: '20'
+        type: string
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.project_name }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Install Playwright (browsers & deps)
+        run: npx playwright install --with-deps
+
+      - name: Run tests (${{ inputs.project_name }})
+        run: npx playwright test --project="${{ inputs.project_name }}"
+
+      - name: Upload Playwright HTML report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_prefix }}-playwright-report
+          path: playwright-report
+
+      - name: Upload traces & screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_prefix }}-traces
+          path: test-results
+
+      - name: Upload axe report (if present)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_prefix }}-axe
+          path: reports/html
+          if-no-files-found: ignore

@@ -1,0 +1,12 @@
+name: E2E Desktop
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  call-core:
+    uses: ./.github/workflows/e2e-core.yml
+    with:
+      project_name: Desktop Chrome
+      artifact_prefix: desktop

@@ -13,14 +13,13 @@ on:
       test_args:
         default: ''
         type: string
-      publish_to:              # <—— add this
+      publish_to:
         description: 'Subfolder on gh-pages to publish report to'
         required: true
         type: string
 
 permissions:
-  contents: write             # needed for gh-pages push
-  id-token: write
+  contents: write
 
 jobs:
   test:
@@ -33,18 +32,41 @@ jobs:
           cache: 'npm'
       - run: npm ci
       - run: npx playwright install --with-deps
+
       - name: Run tests (${{ inputs.project_name }})
+        id: tests
         run: npx playwright test --project="${{ inputs.project_name }}" ${{ inputs.test_args }}
 
-      # (optional) keep your artifacts
-      - if: always()
-        name: Upload Playwright HTML report
+      - name: Write status.json
+        if: always()
+        run: |
+          mkdir -p status
+          node -e "const fs=require('fs');
+            const conclusion='${{ steps.tests.outcome }}' || 'failure';
+            const payload={
+              workflow: '${{ github.workflow }}',
+              project: '${{ inputs.project_name }}',
+              conclusion,
+              sha: '${{ github.sha }}',
+              runId: '${{ github.run_id }}',
+              runNumber: ${{ github.run_number }},
+              updatedAt: new Date().toISOString()
+            };
+            fs.writeFileSync('status/status.json', JSON.stringify(payload,null,2));"
+
+      - name: Bundle status with report
+        if: always()
+        run: |
+          mkdir -p playwright-report
+          cp -f status/status.json playwright-report/status.json
+
+      - name: Upload Playwright HTML report (artifact)
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.artifact_prefix }}-playwright-report
           path: playwright-report
 
-      # Publish the Playwright report to gh-pages/<publish_to>
       - name: Publish report to GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
@@ -52,5 +74,5 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: playwright-report
-          destination_dir: ${{ inputs.publish_to }}   # e.g., desktop / mobile / a11y
-          keep_files: true                            # don’t delete the other folders
+          destination_dir: ${{ inputs.publish_to }}   # e.g., desktop/mobile/a11y
+          keep_files: true

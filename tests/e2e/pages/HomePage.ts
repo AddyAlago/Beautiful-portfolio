@@ -10,7 +10,7 @@ export class HomePage {
   constructor(page: Page) {
     this.page = page;
 
-    // Header / nav
+    // Header / nav (if you tag it later with data-testid="site-header")
     this.header = page.getByTestId('site-header');
 
     // Contact form + submit button
@@ -18,12 +18,17 @@ export class HomePage {
     this.submit = page.getByRole('button', { name: /send|submit/i });
   }
 
-  // Nav item by testid (preferred)
-  navItem(id: string): Locator {
-    return this.page.getByTestId(`nav-${id}`);
+  // Desktop nav item
+  desktopNavItem(id: string): Locator {
+    return this.page.getByTestId('desktop-nav').getByTestId(`nav-${id}`);
   }
 
-  // Section by testid (preferred)
+  // Mobile nav item
+  mobileNavItem(id: string): Locator {
+    return this.page.getByTestId('mobile-nav').getByTestId(`nav-${id}`);
+  }
+
+  // Section by testid
   section(id: string): Locator {
     return this.page.getByTestId(`section-${id}`);
   }
@@ -37,22 +42,25 @@ export class HomePage {
     await this.page.goto('/');
   }
 
-  async clickNav(id: string): Promise<void> {
-    const nav = this.navItem(id);
-    if (await nav.count()) {
-      await nav.click();
-    } else {
-      // fallback to anchor href if no testid present
-      await this.page.locator(`a[href="#${id}"]`).first().click();
+  async clickNav(id: string) {
+    // First, check if the desktop link is visible
+    if (await this.desktopNavItem(id).isVisible()) {
+      await this.desktopNavItem(id).scrollIntoViewIfNeeded();
+      await this.desktopNavItem(id).click();
+      return;
     }
-  }
 
-  async expectInViewport(locator: Locator): Promise<void> {
-    await expect(locator).toBeVisible();
-    const box = await locator.boundingBox();
-    const vh = await this.page.evaluate(() => window.innerHeight);
-    expect(box).toBeTruthy();
-    expect(box!.y).toBeGreaterThanOrEqual(0);
-    expect(box!.y).toBeLessThan(vh);
+    // Otherwise, open hamburger and use mobile nav
+    const menuButton = this.page.getByTestId('nav-toggle');
+    if (await menuButton.isVisible()) {
+      await menuButton.click();
+      // Wait for mobile nav panel to finish animating in
+      await this.page.getByTestId('mobile-nav').waitFor({ state: 'visible' });
+    }
+
+    const mobileLink = this.mobileNavItem(id);
+    await mobileLink.scrollIntoViewIfNeeded();
+    await expect(mobileLink).toBeVisible();
+    await mobileLink.click();
   }
 }

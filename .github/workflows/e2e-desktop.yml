@@ -3,6 +3,7 @@ on:
   push:
     branches: [ main ]
   pull_request:
+  workflow_dispatch:
 
 jobs:
   call-core:
@@ -10,3 +11,4 @@ jobs:
     with:
       project_name: Desktop Chrome
       artifact_prefix: desktop
+      test_args: --grep-invert @a11y

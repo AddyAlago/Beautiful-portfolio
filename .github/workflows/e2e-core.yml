@@ -1,3 +1,4 @@
+# .github/workflows/e2e-core.yml
 name: E2E Core
 
 on:
@@ -15,6 +16,11 @@ on:
         description: 'Node version'
         required: false
         default: '20'
+        type: string
+      test_args:
+        description: 'Extra args to pass to `npx playwright test` (e.g., --grep or --grep-invert)'
+        required: false
+        default: ''
         type: string
 
 concurrency:
@@ -40,7 +46,7 @@ jobs:
         run: npx playwright install --with-deps
 
       - name: Run tests (${{ inputs.project_name }})
-        run: npx playwright test --project="${{ inputs.project_name }}"
+        run: npx playwright test --project="${{ inputs.project_name }}" ${{ inputs.test_args }}
 
       - name: Upload Playwright HTML report
         if: always()

@@ -9,6 +9,8 @@ function sel(id: string) {
 }
 
 async function runA11y(page: Page, contextSelector?: string) {
+  await page.waitForLoadState('domcontentloaded');
+
   // Make geometry deterministic for axe (no smooth scroll/animations)
   await page.addStyleTag({
     content: `
@@ -17,41 +19,41 @@ async function runA11y(page: Page, contextSelector?: string) {
     `,
   });
 
-  let builder = new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa']);
+  let builder = new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']);
 
-  if (contextSelector) {
-    builder = builder.include(contextSelector);
-  }
+  if (contextSelector) builder = builder.include(contextSelector);
 
   const results = await builder.analyze();
+
+  // Attach raw results for debugging in the Playwright report
+  await test.info().attach('axe-results', {
+    body: JSON.stringify(results, null, 2),
+    contentType: 'application/json'
+  });
 
   // Only fail on serious/critical to keep signal high in CI
   const severe = results.violations.filter(v =>
     ['serious', 'critical'].includes((v.impact || '').toLowerCase())
   );
 
-  // Helpful failure message
   expect(
     severe,
     `A11Y violations (${severe.length}):\n` +
-      severe
-        .map(v => `- [${v.impact}] ${v.id}: ${v.help} (${v.nodes.length} nodes)`)
-        .join('\n')
+      severe.map(v => `- [${v.impact}] ${v.id}: ${v.help} (${v.nodes.length} nodes)`).join('\n')
   ).toEqual([]);
 }
 
-test.describe('Accessibility [a11y]', () => {
-  test('home has no serious/critical violations [a11y]', async ({ page }: { page: Page }) => {
+test.describe('Accessibility @a11y', () => {
+  test('home has no serious/critical violations @a11y', async ({ page }) => {
     await page.goto('/');
-    await runA11y(page); // scan whole page
+    await runA11y(page); // whole page
   });
 
-  // One test per section for clearer reporting
   for (const id of IDS) {
-    test(`${id} section has no serious/critical violations [a11y]`, async ({ page }: { page: Page }) => {
+    test(`${id} section has no serious/critical violations @a11y`, async ({ page }) => {
       await page.goto('/');
       await page.locator(sel(id)).first().waitFor({ state: 'visible' });
-      await runA11y(page, sel(id)); // scope axe to the section
+      await runA11y(page, sel(id)); // scoped scan
     });
   }
 });

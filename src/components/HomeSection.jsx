@@ -1,52 +1,47 @@
 import { ArrowDown } from "lucide-react";
-import TestStatus from "./TestStatus"; // 👈 adjust path if file is elsewhere
+import StatusCardsRight from "./StatusCardsRight"; // adjust path if needed
 
 export const HomeSection = () => {
   return (
     <section
       id="home"
       data-testid="section-home"
-      className="relative min-h-screen flex flex-col items-center justify-center px-4"
+      className="relative min-h-screen flex flex-col items-center justify-start px-4 pt-20 md:pt-24"
     >
-      <div className="container max-w-4xl mx-auto text-center z-10">
-        <div className="space-y-6">
+      <div className="container max-w-5xl mx-auto z-10">
+        <div className="space-y-8 text-center">
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
             <span className="opacity-0 animate-fade-in"> Welcome, I'm</span>
-            <span className="text-primary opacity-0 animate-fade-in-delay-1">
-              {" "}Addy
-            </span>
-            <span className="text-gradient ml-2 opacity-0 animate-fade-in-delay-2">
-              {" "}Alago
-            </span>
+            <span className="text-primary opacity-0 animate-fade-in-delay-1"> Addy</span>
+            <span className="text-gradient ml-2 opacity-0 animate-fade-in-delay-2"> Alago</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-muted-foreground max-2-2xl mx-auto opacity-0 animate-fade-in-delay-3">
-            For over 10 years, it has been my passion to deliver high quality
-            software through rigorous testing and automation.
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto opacity-0 animate-fade-in-delay-3">
+            For over 10 years, it has been my passion to deliver high quality software through rigorous testing and automation.
           </p>
 
-          <img
-            src="/images/me.jpg"
-            className="w-60 h-60 rounded-full object-cover block mx-auto"
-          />
+          {/* row: avatar (left) + status cards (right) */}
+          <div className="mx-auto max-w-3xl flex flex-col md:flex-row items-center md:items-stretch justify-center gap-6">
+            {/* Avatar: set fixed square height to match cards */}
+            <img
+              src="/images/me.jpg"
+              alt="Addy Alago"
+              className="w-60 h-60 rounded-full object-cover"
+            />
 
-          <div className="opacity-0 animate-fade-in-delay-4 flex justify-center">
-             <TestStatus />
+            {/* Status cards stack — same height as image */}
+            <StatusCardsRight />
           </div>
 
-          <div className="pt-4 opacity-0 animate-fade-in-delay-4">
-            <a
-              href="#projects"
-              className="cosmic-button"
-              data-testid="button-view-work"
-            >
+          <div className="pt-2">
+            <a href="#projects" className="cosmic-button" data-testid="button-view-work">
               View My Work
             </a>
           </div>
         </div>
       </div>
 
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center animate-bounce">
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce">
         <span className="text-sm text-muted-foreground mb-2">Scroll</span>
         <ArrowDown className="h-5 w-5 text-primary" />
       </div>

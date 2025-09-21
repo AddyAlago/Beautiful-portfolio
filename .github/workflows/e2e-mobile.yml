@@ -12,3 +12,4 @@ jobs:
       project_name: Mobile Safari
       artifact_prefix: mobile
       test_args: --grep-invert @a11y
+      publish_to: mobile

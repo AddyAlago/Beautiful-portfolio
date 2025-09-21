@@ -1,71 +1,56 @@
-# .github/workflows/e2e-core.yml
-name: E2E Core
-
 on:
   workflow_call:
     inputs:
       project_name:
-        description: 'Playwright project name (must match playwright.config.ts)'
         required: true
         type: string
       artifact_prefix:
-        description: 'Prefix for artifact names (e.g., desktop, mobile)'
         required: true
         type: string
       node_version:
-        description: 'Node version'
-        required: false
         default: '20'
         type: string
       test_args:
-        description: 'Extra args to pass to `npx playwright test` (e.g., --grep or --grep-invert)'
-        required: false
         default: ''
         type: string
+      publish_to:              # <—— add this
+        description: 'Subfolder on gh-pages to publish report to'
+        required: true
+        type: string
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.project_name }}
-  cancel-in-progress: true
+permissions:
+  contents: write             # needed for gh-pages push
+  id-token: write
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node_version }}
           cache: 'npm'
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Install Playwright (browsers & deps)
-        run: npx playwright install --with-deps
-
+      - run: npm ci
+      - run: npx playwright install --with-deps
       - name: Run tests (${{ inputs.project_name }})
         run: npx playwright test --project="${{ inputs.project_name }}" ${{ inputs.test_args }}
 
-      - name: Upload Playwright HTML report
-        if: always()
+      # (optional) keep your artifacts
+      - if: always()
+        name: Upload Playwright HTML report
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.artifact_prefix }}-playwright-report
           path: playwright-report
 
-      - name: Upload traces & screenshots
+      # Publish the Playwright report to gh-pages/<publish_to>
+      - name: Publish report to GitHub Pages
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          name: ${{ inputs.artifact_prefix }}-traces
-          path: test-results
-
-      - name: Upload axe report (if present)
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ inputs.artifact_prefix }}-axe
-          path: reports/html
-          if-no-files-found: ignore
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: playwright-report
+          destination_dir: ${{ inputs.publish_to }}   # e.g., desktop / mobile / a11y
+          keep_files: true                            # don’t delete the other folders

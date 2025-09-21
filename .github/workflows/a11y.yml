@@ -12,3 +12,4 @@ jobs:
       project_name: Desktop Chrome
       artifact_prefix: a11y
       test_args: --grep @a11y
+      publish_to: a11y

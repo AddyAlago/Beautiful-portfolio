@@ -12,3 +12,31 @@ jobs:
       project_name: Desktop Chrome
       artifact_prefix: desktop
       test_args: --grep-invert @a11y
+      publish_to: desktop
+
+  publish-index:
+    runs-on: ubuntu-latest
+    needs: call-core
+    steps:
+      - name: Create index.html (links)
+        run: |
+          mkdir -p _root
+          cat > _root/index.html <<'HTML'
+          <!doctype html><meta charset="utf-8">
+          <title>Beautiful-portfolio Reports</title>
+          <h1>Reports</h1>
+          <ul>
+            <li><a href="./desktop/">E2E Desktop</a></li>
+            <li><a href="./mobile/">E2E Mobile</a></li>
+            <li><a href="./a11y/">A11Y Tests</a></li>
+          </ul>
+          HTML
+
+      - name: Publish index.html to root
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: _root
+          destination_dir: .
+          keep_files: true

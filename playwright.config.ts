@@ -52,7 +52,20 @@ export default defineConfig({
             reuseExistingServer: true,
           }),
   projects: [
-    { name: 'Desktop Chrome', use: { ...devices['Desktop Chrome'] } },
-    { name: 'Mobile Safari',  use: { ...devices['iPhone 13'] } },
-  ],
+  {
+    name: 'Desktop Chrome',
+    use: { ...devices['Desktop Chrome'] },
+    grepInvert: /@a11y/,     // exclude a11y tests from Desktop
+  },
+  {
+    name: 'Mobile Safari',
+    use: { ...devices['iPhone 13'] },
+    grepInvert: /@a11y/,     // exclude a11y tests from Mobile
+  },
+  {
+    name: 'A11Y',
+    use: { ...devices['Desktop Chrome'] },
+    grep: /@a11y/,           // run only a11y tests here
+  },
+],
 });

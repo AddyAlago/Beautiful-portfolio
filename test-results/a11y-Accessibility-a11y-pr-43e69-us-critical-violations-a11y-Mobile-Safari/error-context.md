@@ -14,32 +14,6 @@
             - text: Portfolio
         - button "Open Menu" [ref=e9]:
           - img [ref=e10]
-        - dialog:
-          - button:
-            - img
-          - generic:
-            - navigation:
-              - link:
-                - /url: "#home"
-                - text: Home
-              - link:
-                - /url: "#about"
-                - text: About
-              - link:
-                - /url: "#skills"
-                - text: Skills
-              - link:
-                - /url: "#projects"
-                - text: Projects
-              - link:
-                - /url: "#contact"
-                - text: Contact
-              - link:
-                - /url: https://addyalago.github.io/Beautiful-portfolio/
-                - text: Tests
-              - link:
-                - /url: https://drive.google.com/file/d/1Ttln3b5_RWDozxSC51wLPDfIU-_OkRGa/view?usp=sharing
-                - text: Resume
     - main [ref=e11]:
       - generic [ref=e12]:
         - generic [ref=e14]:
@@ -51,29 +25,29 @@
           - generic [ref=e20]:
             - img "Addy Alago" [ref=e21]
             - generic [ref=e23]:
-              - link "E2E Desktop success · 9/20/2025, 9:48:39 PM" [ref=e24]:
+              - link "E2E Desktop success · 9/20/2025, 10:48:29 PM" [ref=e24]:
                 - /url: https://addyalago.github.io/Beautiful-portfolio/desktop
                 - generic [ref=e25]:
                   - img [ref=e26]
                   - generic [ref=e28]:
                     - generic [ref=e29]: E2E Desktop
-                    - generic [ref=e30]: success · 9/20/2025, 9:48:39 PM
+                    - generic [ref=e30]: success · 9/20/2025, 10:48:29 PM
                   - img [ref=e31]
-              - link "E2E Mobile success · 9/20/2025, 9:48:00 PM" [ref=e33]:
+              - link "E2E Mobile success · 9/20/2025, 10:50:34 PM" [ref=e33]:
                 - /url: https://addyalago.github.io/Beautiful-portfolio/mobile
                 - generic [ref=e34]:
                   - img [ref=e35]
                   - generic [ref=e37]:
                     - generic [ref=e38]: E2E Mobile
-                    - generic [ref=e39]: success · 9/20/2025, 9:48:00 PM
+                    - generic [ref=e39]: success · 9/20/2025, 10:50:34 PM
                   - img [ref=e40]
-              - link "A11Y failure · 9/20/2025, 9:47:27 PM" [ref=e42]:
+              - link "A11Y failure · 9/20/2025, 10:49:09 PM" [ref=e42]:
                 - /url: https://addyalago.github.io/Beautiful-portfolio/a11y
                 - generic [ref=e43]:
                   - img [ref=e44]
                   - generic [ref=e50]:
                     - generic [ref=e51]: A11Y
-                    - generic [ref=e52]: failure · 9/20/2025, 9:47:27 PM
+                    - generic [ref=e52]: failure · 9/20/2025, 10:49:09 PM
                   - img [ref=e53]
           - link "View My Work" [ref=e56]:
             - /url: "#projects"

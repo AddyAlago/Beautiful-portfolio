@@ -13,7 +13,17 @@ export default defineConfig({
   timeout: 30_000,
   retries: isCI ? 2 : 0,
   forbidOnly: isCI,
-  reporter: isCI ? [['github'], ['html', { open: 'never' }]] : [['list'], ['html', { open: 'never' }]],
+  reporter: isCI
+    ? [
+        ['github'],
+        ['html', { open: 'never' }],
+        ['allure-playwright', { resultsDir: 'allure-results', detail: true, suiteTitle: true }],
+      ]
+    : [
+        ['list'],
+        ['html', { open: 'never' }],
+        ['allure-playwright', { resultsDir: 'allure-results', detail: true, suiteTitle: true }],
+      ],
   use: {
     baseURL:
       process.env.BASE_URL ||

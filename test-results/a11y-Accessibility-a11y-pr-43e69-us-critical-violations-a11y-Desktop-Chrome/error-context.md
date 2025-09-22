@@ -40,29 +40,29 @@
           - generic [ref=e29]:
             - img "Addy Alago" [ref=e30]
             - generic [ref=e32]:
-              - link "E2E Desktop success · 9/20/2025, 9:48:39 PM" [ref=e33] [cursor=pointer]:
+              - link "E2E Desktop unknown · —" [ref=e33] [cursor=pointer]:
                 - /url: https://addyalago.github.io/Beautiful-portfolio/desktop
                 - generic [ref=e34] [cursor=pointer]:
                   - img [ref=e35] [cursor=pointer]
                   - generic [ref=e37] [cursor=pointer]:
                     - generic [ref=e38] [cursor=pointer]: E2E Desktop
-                    - generic [ref=e39] [cursor=pointer]: success · 9/20/2025, 9:48:39 PM
+                    - generic [ref=e39] [cursor=pointer]: unknown · —
                   - img [ref=e40] [cursor=pointer]
-              - link "E2E Mobile success · 9/20/2025, 9:48:00 PM" [ref=e42] [cursor=pointer]:
+              - link "E2E Mobile unknown · —" [ref=e42] [cursor=pointer]:
                 - /url: https://addyalago.github.io/Beautiful-portfolio/mobile
                 - generic [ref=e43] [cursor=pointer]:
                   - img [ref=e44] [cursor=pointer]
                   - generic [ref=e46] [cursor=pointer]:
                     - generic [ref=e47] [cursor=pointer]: E2E Mobile
-                    - generic [ref=e48] [cursor=pointer]: success · 9/20/2025, 9:48:00 PM
+                    - generic [ref=e48] [cursor=pointer]: unknown · —
                   - img [ref=e49] [cursor=pointer]
-              - link "A11Y failure · 9/20/2025, 9:47:27 PM" [ref=e51] [cursor=pointer]:
+              - link "A11Y unknown · —" [ref=e51] [cursor=pointer]:
                 - /url: https://addyalago.github.io/Beautiful-portfolio/a11y
                 - generic [ref=e52] [cursor=pointer]:
                   - img [ref=e53] [cursor=pointer]
                   - generic [ref=e59] [cursor=pointer]:
                     - generic [ref=e60] [cursor=pointer]: A11Y
-                    - generic [ref=e61] [cursor=pointer]: failure · 9/20/2025, 9:47:27 PM
+                    - generic [ref=e61] [cursor=pointer]: unknown · —
                   - img [ref=e62] [cursor=pointer]
           - link "View My Work" [ref=e65] [cursor=pointer]:
             - /url: "#projects"

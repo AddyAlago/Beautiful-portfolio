@@ -1,8 +1,8 @@
 # Beautiful Portfolio
 
-[![Allure — Desktop](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/desktop/badge.json)](https://addyalago.github.io/Beautiful-portfolio/allure/desktop/)
-[![Allure — Mobile](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/mobile/badge.json)](https://addyalago.github.io/Beautiful-portfolio/allure/mobile/)
-[![Allure — A11Y](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/a11y/badge.json)](https://addyalago.github.io/Beautiful-portfolio/allure/a11y/)
+[![Allure — Desktop](https://img.shields.io/badge/Allure-Desktop-7c5cff?labelColor=333)](https://addyalago.github.io/Beautiful-portfolio/allure/desktop/)
+[![Allure — Mobile](https://img.shields.io/badge/Allure-Mobile-44d4b6?labelColor=333)](https://addyalago.github.io/Beautiful-portfolio/allure/mobile/)
+[![Allure — A11Y](https://img.shields.io/badge/Allure-A11Y-2a62ff?labelColor=333)](https://addyalago.github.io/Beautiful-portfolio/allure/a11y/)
 
 
 

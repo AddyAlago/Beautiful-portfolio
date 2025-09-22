@@ -44,7 +44,7 @@ jobs:
         id: tests
         run: npx playwright test --project="${{ inputs.project_name }}" ${{ inputs.test_args }}
 
-      # Optional visibility into which tests matched your filters
+      # Optional: see exactly which tests matched
       - name: Show matched tests (diagnostic)
         if: always()
         run: npx playwright test --project="${{ inputs.project_name }}" ${{ inputs.test_args }} --list || true
@@ -134,9 +134,10 @@ jobs:
           # Build a nice root index only when publishing 'desktop'
           if [ "${{ inputs.publish_to }}" = "desktop" ]; then
             NOW=$(date -u +"%Y-%m-%d %H:%M:%SZ")
-            SHA_SHORT=${GITHUB_SHA::7}
+            SHA_SHORT=$(echo "$GITHUB_SHA" | cut -c1-7)
             mkdir -p _site
-            cat > _site/index.html <<HTML
+            # Use a *quoted* heredoc to avoid accidental expansion; then replace placeholders.
+            cat <<'HTML' > _site/index.html
             <!doctype html>
             <html lang="en">
             <head>
@@ -194,8 +195,8 @@ jobs:
                 <p class="subtitle">Latest end-to-end (Playwright) and Allure reports for each test stream.</p>
                 <div class="meta">
                   Run <strong>#${{ github.run_number }}</strong> on <strong>${{ github.ref_name }}</strong> ·
-                  commit <strong>${SHA_SHORT}</strong> ·
-                  <span title="UTC timestamp">updated <strong>${NOW}</strong> UTC</span> ·
+                  commit <strong>__SHA_SHORT__</strong> ·
+                  <span title="UTC timestamp">updated <strong>__NOW__</strong> UTC</span> ·
                   <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank" rel="noopener">view CI run</a>
                 </div>
               </header>
@@ -267,6 +268,8 @@ jobs:
             </body>
             </html>
             HTML
+            sed -i "s|__SHA_SHORT__|$SHA_SHORT|g" _site/index.html
+            sed -i "s|__NOW__|$NOW|g" _site/index.html
           fi
 
       - name: Publish to gh-pages (single push)

@@ -65,7 +65,7 @@ projects: [
   {
     name: 'A11Y',
     use: { ...devices['Desktop Chrome'] },
-    testMatch: ['**/*.a11y.spec.ts'],
+    testMatch: ['**/*a11y.spec.ts'],
   },
 ]
 });

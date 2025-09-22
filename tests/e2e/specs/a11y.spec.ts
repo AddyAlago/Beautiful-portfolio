@@ -43,7 +43,7 @@ async function runA11y(page: Page, contextSelector?: string) {
   ).toEqual([]);
 }
 
-test.describe('Accessibility @a11y', () => {
+test.describe('@a11y accessibility suite', () => {
   test('home has no serious/critical violations @a11y', async ({ page }) => {
     await page.goto('/');
     await runA11y(page); // whole page

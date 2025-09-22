@@ -1,4 +1,5 @@
 name: E2E Desktop
+
 on:
   push:
     branches: [ main ]
@@ -14,12 +15,14 @@ jobs:
     with:
       project_name: Desktop Chrome
       artifact_prefix: desktop
-      test_args: --grep-invert @a11y
+      test_args: --grep-invert "@a11y"
       publish_to: desktop
 
   publish-index:
     runs-on: ubuntu-latest
     needs: call-core
+    permissions:
+      contents: write
     steps:
       - name: Create index.html (fancy links)
         run: |
@@ -175,16 +178,6 @@ jobs:
           </body>
           </html>
           HTML
-
-      - name: Publish index.html to root
-        uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: _root
-          destination_dir: .
-          keep_files: true
-
 
       - name: Publish index.html to root
         uses: peaceiris/actions-gh-pages@v3

@@ -51,21 +51,21 @@ export default defineConfig({
             timeout: 180_000,
             reuseExistingServer: true,
           }),
-  projects: [
+projects: [
   {
     name: 'Desktop Chrome',
     use: { ...devices['Desktop Chrome'] },
-    grepInvert: /@a11y/,     // exclude a11y tests from Desktop
+    testMatch: ['**/*.spec.ts', '!**/*.a11y.spec.ts'],
   },
   {
     name: 'Mobile Safari',
     use: { ...devices['iPhone 13'] },
-    grepInvert: /@a11y/,     // exclude a11y tests from Mobile
+    testMatch: ['**/*.spec.ts', '!**/*.a11y.spec.ts'],
   },
   {
     name: 'A11Y',
     use: { ...devices['Desktop Chrome'] },
-    grep: /@a11y/,           // run only a11y tests here
+    testMatch: ['**/*.a11y.spec.ts'],
   },
-],
+]
 });

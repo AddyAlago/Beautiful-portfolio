@@ -1,3 +1,5 @@
+name: e2e-core
+
 on:
   workflow_call:
     inputs:
@@ -26,16 +28,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node_version }}
           cache: 'npm'
+
       - run: npm ci
+
       - run: npx playwright install --with-deps
+
+      - name: Clean previous outputs
+        run: rm -rf allure-results playwright-report status
 
       - name: Run tests (${{ inputs.project_name }})
         id: tests
         run: npx playwright test --project="${{ inputs.project_name }}" ${{ inputs.test_args }}
+
+      # Optional: quick visibility into which tests matched the filters
+      - name: Show matched tests (diagnostic)
+        if: always()
+        run: npx playwright test --project="${{ inputs.project_name }}" ${{ inputs.test_args }} --list || true
 
       - name: Write status.json
         if: always()
@@ -58,7 +71,7 @@ jobs:
         if: always()
         run: |
           mkdir -p playwright-report
-          cp -f status/status.json playwright-report/status.json
+          cp -f status/status.json playwright-report/status.json || true
 
       - name: Upload Playwright HTML report (artifact)
         if: always()
@@ -67,7 +80,7 @@ jobs:
           name: ${{ inputs.artifact_prefix }}-playwright-report
           path: playwright-report
 
-      - name: Publish report to GitHub Pages
+      - name: Publish Playwright HTML report to GitHub Pages
         if: always()
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -76,6 +89,9 @@ jobs:
           publish_dir: playwright-report
           destination_dir: ${{ inputs.publish_to }}   # e.g., desktop/mobile/a11y
           keep_files: true
+
+      # --- Allure publish with history ---
+
       - name: Set up Java for Allure
         if: always()
         uses: actions/setup-java@v4
@@ -92,7 +108,7 @@ jobs:
           path: gh-pages
         continue-on-error: true
 
-      - name: Prepare history folder
+      - name: Prepare history + executor
         if: always()
         run: |
           mkdir -p allure-results
@@ -100,15 +116,20 @@ jobs:
             mkdir -p allure-results/history
             cp -r gh-pages/allure/${{ inputs.publish_to }}/history allure-results/
           fi
+          cat > allure-results/executor.json <<'JSON'
+          {
+            "name": "GitHub Actions",
+            "type": "github",
+            "buildName": "${{ github.workflow }} #${{ github.run_number }}",
+            "buildUrl": "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+            "reportUrl": "https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/allure/${{ inputs.publish_to }}/",
+            "reportName": "Allure — ${{ inputs.publish_to }}"
+          }
+          JSON
 
       - name: Generate Allure report
         if: always()
-        run: |
-          npx allure generate allure-results --clean -o allure-report
-          # (optional) bake CI metadata into the report
-          cat > allure-report/widgets/summary.json <<'JSON'
-          {"ci":"GitHub Actions"}
-          JSON
+        run: npx allure generate allure-results --clean -o allure-report
 
       - name: Publish Allure to gh-pages
         if: always()
@@ -119,5 +140,3 @@ jobs:
           publish_dir: allure-report
           destination_dir: allure/${{ inputs.publish_to }}
           keep_files: true
-
-          

@@ -53,7 +53,7 @@ test.describe('@a11y accessibility suite', () => {
     test(`${id} section has no serious/critical violations @a11y`, async ({ page }) => {
       await page.goto('/');
       await page.locator(sel(id)).first().waitFor({ state: 'visible' });
-      await runA11y(page, sel(id)); // scoped scan
+      await runA11y(page, sel(id)); // scoped scan.
     });
   }
 });

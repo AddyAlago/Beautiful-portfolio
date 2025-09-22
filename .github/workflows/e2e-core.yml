@@ -119,5 +119,12 @@ jobs:
           publish_dir: allure-report
           destination_dir: allure/${{ inputs.publish_to }}
           keep_files: true
+      - name: Create Shields endpoint badge (Allure)
+        if: always()
+        run: |
+          node -e "const fs=require('fs');const path='allure-report/widgets/summary.json';let st={total:0,passed:0,failed:0,broken:0,skipped:0,unknown:0};try{st=JSON.parse(fs.readFileSync(path,'utf8')).statistic||st;}catch(e){}const bad=(st.failed||0)+(st.broken||0);const color=bad>0?'red':(st.skipped>0?'yellowgreen':'brightgreen');const msg=`${st.passed||0} passed, ${st.failed||0} failed, ${st.broken||0} broken`;const label=`Allure ${process.env.SUITE||'suite'}`;fs.writeFileSync('allure-report/badge.json',JSON.stringify({schemaVersion:1,label,message:msg,color}));"
+        env:
+          SUITE: ${{ inputs.publish_to }}
+
 
           

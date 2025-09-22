@@ -1,8 +1,9 @@
 # Beautiful Portfolio
 
-[![E2E Desktop](https://img.shields.io/github/actions/workflow/status/AddyAlago/Beautiful-portfolio/e2e-desktop.yml?branch=main&label=E2E%20Desktop)](https://addyalago.github.io/Beautiful-portfolio/desktop)
-[![E2E Mobile](https://img.shields.io/github/actions/workflow/status/AddyAlago/Beautiful-portfolio/e2e-mobile.yml?branch=main&label=E2E%20Mobile)](https://addyalago.github.io/Beautiful-portfolio/mobile)
-[![A11Y Tests](https://img.shields.io/github/actions/workflow/status/AddyAlago/Beautiful-portfolio/a11y.yml?branch=main&label=A11Y%20Tests)](https://addyalago.github.io/Beautiful-portfolio/a11y)
+[![Allure — Desktop](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/desktop/badge.json)](https://addyalago.github.io/Beautiful-portfolio/allure/desktop/)
+[![Allure — Mobile](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/mobile/badge.json)](https://addyalago.github.io/Beautiful-portfolio/allure/mobile/)
+[![Allure — A11Y](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/a11y/badge.json)](https://addyalago.github.io/Beautiful-portfolio/allure/a11y/)
+
 
 
 

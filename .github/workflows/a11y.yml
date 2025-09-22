@@ -12,7 +12,7 @@ jobs:
       id-token: write
     uses: ./.github/workflows/e2e-core.yml
     with:
-      project_name: Desktop Chrome
+      project_name: A11y
       artifact_prefix: a11y
       test_args: --grep @a11y
       publish_to: a11y

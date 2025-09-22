@@ -44,10 +44,10 @@ jobs:
         id: tests
         run: npx playwright test --project="${{ inputs.project_name }}" ${{ inputs.test_args }}
 
-      # Optional: list matched tests for debugging patterns
+      # IMPORTANT: list with a non-Allure reporter so it doesn't write skipped results
       - name: Show matched tests (diagnostic)
         if: always()
-        run: npx playwright test --project="${{ inputs.project_name }}" ${{ inputs.test_args }} --list || true
+        run: npx playwright test --project="${{ inputs.project_name }}" ${{ inputs.test_args }} --list --reporter=list || true
 
       - name: Write status.json
         if: always()
@@ -118,7 +118,7 @@ jobs:
         if: always()
         run: npx allure generate allure-results --clean -o allure-report
 
-      # ---------- Assemble site (common) ----------
+      # ---------- Assemble site (Playwright + Allure) ----------
       - name: Assemble site (Playwright + Allure)
         if: always()
         run: |
@@ -137,138 +137,135 @@ jobs:
           NOW=$(date -u +"%Y-%m-%d %H:%M:%SZ")
           SHA_SHORT=$(echo "$GITHUB_SHA" | cut -c1-7)
           mkdir -p _site
-          # quoted heredoc; placeholders replaced below
           cat > _site/index.html <<'HTML'
-            <!doctype html>
-            <html lang="en">
-            <head>
-              <meta charset="utf-8">
-              <meta name="viewport" content="width=device-width, initial-scale=1">
-              <title>Beautiful-portfolio • Reports</title>
-              <style>
-                :root{
-                  --bg:#0b1220; --panel:#111a2f; --muted:#9fb0d1; --text:#e6eefc; --link:#80b3ff; --accent:#7c5cff; --accent2:#44d4b6; --card:#0f1629;
-                }
-                @media (prefers-color-scheme: light){
-                  :root{ --bg:#f8faff; --panel:#ffffff; --muted:#5b6b86; --text:#0e1116; --link:#2a62ff; --accent:#5b3df5; --accent2:#00a389; --card:#ffffff; }
-                }
-                *{box-sizing:border-box}
-                body{
-                  margin:0; font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
-                  color:var(--text); background:radial-gradient(80rem 60rem at 20% -10%, rgba(124, 92, 255, .25), transparent 60%),
-                                    radial-gradient(80rem 60rem at 90% 10%, rgba(68, 212, 182, .25), transparent 60%),
-                                    var(--bg);
-                }
-                header{ padding:48px 20px 28px; text-align:center; }
-                .title{font-size:clamp(24px, 3.2vw, 36px); margin:0 0 6px; letter-spacing:.3px}
-                .subtitle{margin:0; color:var(--muted); font-size:14px}
-                .meta{margin-top:10px; color:var(--muted); font-size:13px}
-                .meta a{color:var(--link); text-decoration:none}
-                .wrap{max-width:1100px; margin:22px auto 60px; padding:0 20px}
-                h2{margin:22px 0 12px; font-size:clamp(18px, 2.2vw, 22px)}
-                .grid{ display:grid; gap:16px; grid-template-columns: repeat( auto-fit, minmax(240px, 1fr) ); }
-                .card{
-                  background:var(--card); border:1px solid rgba(255,255,255,.07);
-                  border-radius:16px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,.15);
-                  transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-                }
-                .card:hover{ transform:translateY(-3px); box-shadow:0 10px 24px rgba(0,0,0,.22); border-color:rgba(255,255,255,.18) }
-                .tag{display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; letter-spacing:.2px; margin-bottom:10px; color:#fff}
-                .pw{background:linear-gradient(90deg,var(--accent), #a477ff)}
-                .allure{background:linear-gradient(90deg,var(--accent2), #39b7d4)}
-                .card h3{margin:6px 0 8px; font-size:18px}
-                .desc{margin:0 0 14px; color:var(--muted); font-size:14px; min-height:40px}
-                .btns{display:flex; gap:10px; flex-wrap:wrap}
-                .btn{
-                  display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:10px;
-                  border:1px solid rgba(255,255,255,.14); text-decoration:none; color:var(--text); font-size:14px;
-                  background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-                }
-                .btn:hover{ border-color:rgba(255,255,255,.28) }
-                .muted{ color:var(--muted) }
-                footer{ text-align:center; padding:28px 20px 46px; color:var(--muted); font-size:13px }
-                .hidden{opacity:.55; filter:grayscale(0.4)}
-              </style>
-            </head>
-            <body>
-              <header>
-                <h1 class="title">Beautiful-portfolio — Reports</h1>
-                <p class="subtitle">Latest end-to-end (Playwright) and Allure reports for each test stream.</p>
-                <div class="meta">
-                  Run <strong>#${{ github.run_number }}</strong> on <strong>${{ github.ref_name }}</strong> ·
-                  commit <strong>__SHA_SHORT__</strong> ·
-                  <span title="UTC timestamp">updated <strong>__NOW__</strong> UTC</span> ·
-                  <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank" rel="noopener">view CI run</a>
-                </div>
-              </header>
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Beautiful-portfolio • Reports</title>
+            <style>
+              :root{ --bg:#0b1220; --panel:#111a2f; --muted:#9fb0d1; --text:#e6eefc; --link:#80b3ff; --accent:#7c5cff; --accent2:#44d4b6; --card:#0f1629; }
+              @media (prefers-color-scheme: light){
+                :root{ --bg:#f8faff; --panel:#ffffff; --muted:#5b6b86; --text:#0e1116; --link:#2a62ff; --accent:#5b3df5; --accent2:#00a389; --card:#ffffff; }
+              }
+              *{box-sizing:border-box}
+              body{
+                margin:0; font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+                color:var(--text); background:radial-gradient(80rem 60rem at 20% -10%, rgba(124, 92, 255, .25), transparent 60%),
+                                  radial-gradient(80rem 60rem at 90% 10%, rgba(68, 212, 182, .25), transparent 60%),
+                                  var(--bg);
+              }
+              header{ padding:48px 20px 28px; text-align:center; }
+              .title{font-size:clamp(24px, 3.2vw, 36px); margin:0 0 6px; letter-spacing:.3px}
+              .subtitle{margin:0; color:var(--muted); font-size:14px}
+              .meta{margin-top:10px; color:var(--muted); font-size:13px}
+              .meta a{color:var(--link); text-decoration:none}
+              .wrap{max-width:1100px; margin:22px auto 60px; padding:0 20px}
+              h2{margin:22px 0 12px; font-size:clamp(18px, 2.2vw, 22px)}
+              .grid{ display:grid; gap:16px; grid-template-columns: repeat( auto-fit, minmax(240px, 1fr) ); }
+              .card{
+                background:var(--card); border:1px solid rgba(255,255,255,.07);
+                border-radius:16px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,.15);
+                transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+              }
+              .card:hover{ transform:translateY(-3px); box-shadow:0 10px 24px rgba(0,0,0,.22); border-color:rgba(255,255,255,.18) }
+              .tag{display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; letter-spacing:.2px; margin-bottom:10px; color:#fff}
+              .pw{background:linear-gradient(90deg,var(--accent), #a477ff)}
+              .allure{background:linear-gradient(90deg,var(--accent2), #39b7d4)}
+              .card h3{margin:6px 0 8px; font-size:18px}
+              .desc{margin:0 0 14px; color:var(--muted); font-size:14px; min-height:40px}
+              .btns{display:flex; gap:10px; flex-wrap:wrap}
+              .btn{
+                display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:10px;
+                border:1px solid rgba(255,255,255,.14); text-decoration:none; color:var(--text); font-size:14px;
+                background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+              }
+              .btn:hover{ border-color:rgba(255,255,255,.28) }
+              .muted{ color:var(--muted) }
+              footer{ text-align:center; padding:28px 20px 46px; color:var(--muted); font-size:13px }
+              .hidden{opacity:.55; filter:grayscale(0.4)}
+            </style>
+          </head>
+          <body>
+            <header>
+              <h1 class="title">Beautiful-portfolio — Reports</h1>
+              <p class="subtitle">Latest end-to-end (Playwright) and Allure reports for each test stream.</p>
+              <div class="meta">
+                Run <strong>#${{ github.run_number }}</strong> on <strong>${{ github.ref_name }}</strong> ·
+                commit <strong>__SHA_SHORT__</strong> ·
+                <span title="UTC timestamp">updated <strong>__NOW__</strong> UTC</span> ·
+                <a href="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank" rel="noopener">view CI run</a>
+              </div>
+            </header>
 
-              <main class="wrap">
-                <h2>Playwright HTML Reports</h2>
-                <section class="grid">
-                  <article class="card" data-probe="./desktop/">
-                    <span class="tag pw">Playwright</span>
-                    <h3>Desktop</h3>
-                    <p class="desc">Full desktop browser suite.</p>
-                    <div class="btns"><a class="btn" href="./desktop/">Open report</a></div>
-                  </article>
-                  <article class="card" data-probe="./mobile/">
-                    <span class="tag pw">Playwright</span>
-                    <h3>Mobile</h3>
-                    <p class="desc">Mobile emulation / device profiles.</p>
-                    <div class="btns"><a class="btn" href="./mobile/">Open report</a></div>
-                  </article>
-                  <article class="card" data-probe="./a11y/">
-                    <span class="tag pw">Playwright</span>
-                    <h3>A11Y</h3>
-                    <p class="desc">Accessibility checks & violations.</p>
-                    <div class="btns"><a class="btn" href="./a11y/">Open report</a></div>
-                  </article>
-                </section>
+            <main class="wrap">
+              <h2>Playwright HTML Reports</h2>
+              <section class="grid">
+                <article class="card" data-probe="./desktop/">
+                  <span class="tag pw">Playwright</span>
+                  <h3>Desktop</h3>
+                  <p class="desc">Full desktop browser suite.</p>
+                  <div class="btns"><a class="btn" href="./desktop/">Open report</a></div>
+                </article>
+                <article class="card" data-probe="./mobile/">
+                  <span class="tag pw">Playwright</span>
+                  <h3>Mobile</h3>
+                  <p class="desc">Mobile emulation / device profiles.</p>
+                  <div class="btns"><a class="btn" href="./mobile/">Open report</a></div>
+                </article>
+                <article class="card" data-probe="./a11y/">
+                  <span class="tag pw">Playwright</span>
+                  <h3>A11Y</h3>
+                  <p class="desc">Accessibility checks & violations.</p>
+                  <div class="btns"><a class="btn" href="./a11y/">Open report</a></div>
+                </article>
+              </section>
 
-                <h2>Allure Reports</h2>
-                <section class="grid">
-                  <article class="card" data-probe="./allure/desktop/">
-                    <span class="tag allure">Allure</span>
-                    <h3>Desktop</h3>
-                    <p class="desc">Drill-down results, history & trends.</p>
-                    <div class="btns"><a class="btn" href="./allure/desktop/">Open Allure</a></div>
-                  </article>
-                  <article class="card" data-probe="./allure/mobile/">
-                    <span class="tag allure">Allure</span>
-                    <h3>Mobile</h3>
-                    <p class="desc">Mobile suite with Allure analytics.</p>
-                    <div class="btns"><a class="btn" href="./allure/mobile/">Open Allure</a></div>
-                  </article>
-                  <article class="card" data-probe="./allure/a11y/">
-                    <span class="tag allure">Allure</span>
-                    <h3>A11Y</h3>
-                    <p class="desc">Accessibility scan results (axe).</p>
-                    <div class="btns"><a class="btn" href="./allure/a11y/">Open Allure</a></div>
-                  </article>
-                </section>
-              </main>
+              <h2>Allure Reports</h2>
+              <section class="grid">
+                <article class="card" data-probe="./allure/desktop/">
+                  <span class="tag allure">Allure</span>
+                  <h3>Desktop</h3>
+                  <p class="desc">Drill-down results, history & trends.</p>
+                  <div class="btns"><a class="btn" href="./allure/desktop/">Open Allure</a></div>
+                </article>
+                <article class="card" data-probe="./allure/mobile/">
+                  <span class="tag allure">Allure</span>
+                  <h3>Mobile</h3>
+                  <p class="desc">Mobile suite with Allure analytics.</p>
+                  <div class="btns"><a class="btn" href="./allure/mobile/">Open Allure</a></div>
+                </article>
+                <article class="card" data-probe="./allure/a11y/">
+                  <span class="tag allure">Allure</span>
+                  <h3>A11Y</h3>
+                  <p class="desc">Accessibility scan results (axe).</p>
+                  <div class="btns"><a class="btn" href="./allure/a11y/">Open Allure</a></div>
+                </article>
+              </section>
+            </main>
 
-              <footer>
-                <span class="muted">Built automatically by GitHub Actions.</span>
-              </footer>
+            <footer>
+              <span class="muted">Built automatically by GitHub Actions.</span>
+            </footer>
 
-              <script>
-                (async function(){
-                  const cards = document.querySelectorAll('.card[data-probe]');
-                  for (const card of cards){
-                    const url = card.getAttribute('data-probe');
-                    try {
-                      const res = await fetch(url, { method: 'HEAD' });
-                      if (!res.ok) card.classList.add('hidden');
-                    } catch {
-                      card.classList.add('hidden');
-                    }
+            <script>
+              (async function(){
+                const cards = document.querySelectorAll('.card[data-probe]');
+                for (const card of cards){
+                  const url = card.getAttribute('data-probe');
+                  try {
+                    const res = await fetch(url, { method: 'HEAD' });
+                    if (!res.ok) card.classList.add('hidden');
+                  } catch {
+                    card.classList.add('hidden');
                   }
-                })();
-              </script>
-            </body>
-            </html>
-            HTML
+                }
+              })();
+            </script>
+          </body>
+          </html>
+          HTML
           sed -i "s|__SHA_SHORT__|$SHA_SHORT|g" _site/index.html
           sed -i "s|__NOW__|$NOW|g" _site/index.html
 

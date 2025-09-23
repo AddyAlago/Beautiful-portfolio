@@ -1,8 +1,9 @@
 # Beautiful Portfolio
-
-[![Allure — Desktop](https://img.shields.io/badge/Allure-Desktop-7c5cff?labelColor=333)](https://addyalago.github.io/Beautiful-portfolio/allure/desktop/)
-[![Allure — Mobile](https://img.shields.io/badge/Allure-Mobile-44d4b6?labelColor=333)](https://addyalago.github.io/Beautiful-portfolio/allure/mobile/)
-[![Allure — A11Y](https://img.shields.io/badge/Allure-A11Y-2a62ff?labelColor=333)](https://addyalago.github.io/Beautiful-portfolio/allure/a11y/)
+![Desktop tests](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/desktop/widgets/summary.json&logo=allure&label=desktop%20tests)
+![Mobile tests](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/mobile/widgets/summary.json&logo=allure&label=mobile%20tests)
+![A11Y tests](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/a11y/widgets/summary.json&logo=allure&label=a11y)
+![Visual tests](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/visual/widgets/summary.json&logo=allure&label=visual)
+![All suites](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/combined/data/widgets/summary.json&logo=allure&label=all%20suites)
 
 
 

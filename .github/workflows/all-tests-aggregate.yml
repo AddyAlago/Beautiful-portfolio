@@ -130,6 +130,32 @@ jobs:
             mkdir -p "_site/playwright/${suite}"
             cp -r "$d"/* "_site/playwright/${suite}/" || true
           done
+      - name: Generate per-suite Allure widgets (and optional full site)
+        shell: bash
+        run: |
+          set -e
+          suites=(desktop mobile a11y visual)
+          mkdir -p tmp
+          for suite in "${suites[@]}"; do
+            src="artifacts/allure-results-${suite}"
+            if [ -d "$src" ]; then
+              echo "Generating per-suite Allure for: $suite"
+              rm -rf "tmp/${suite}"
+              allure generate "$src" --clean -o "tmp/${suite}"
+
+              # Always publish widgets for badges:
+              mkdir -p "_site/allure/${suite}"
+              rm -rf "_site/allure/${suite}/widgets"
+              cp -r "tmp/${suite}/data/widgets" "_site/allure/${suite}/widgets"
+
+              # OPTIONAL: also publish the full per-suite Allure site (uncomment if your README links to /allure/<suite>/)
+              # rm -rf "_site/allure/${suite}"
+              # mkdir -p "_site/allure/${suite}"
+              # cp -r "tmp/${suite}/"* "_site/allure/${suite}/"
+            else
+              echo "No allure-results for ${suite}; skipping."
+            fi
+          done
 
       - name: Build root index (combined + per-suite)
         if: always()
@@ -219,13 +245,17 @@ jobs:
               </section>
 
               <h2>Allure Raw JSON (Per-Suite)</h2>
-              <section class="grid">
-                <article class="card" data-probe="./allure/json/desktop/"><span class="tag allure">Allure</span><h3>Desktop</h3><p class="desc">Raw Allure results for badges.</p><div class="btns"><a class="btn" href="./allure/json/desktop/">Open JSON</a></div></article>
-                <article class="card" data-probe="./allure/json/mobile/"><span class="tag allure">Allure</span><h3>Mobile</h3><p class="desc">Raw Allure results for badges.</p><div class="btns"><a class="btn" href="./allure/json/mobile/">Open JSON</a></div></article>
-                <article class="card" data-probe="./allure/json/a11y/"><span class="tag allure">Allure</span><h3>A11Y</h3><p class="desc">Raw Allure results for badges.</p><div class="btns"><a class="btn" href="./allure/json/a11y/">Open JSON</a></div></article>
-                <article class="card" data-probe="./allure/json/visual/"><span class="tag allure">Allure</span><h3>Visual</h3><p class="desc">Raw Allure results for badges.</p><div class="btns"><a class="btn" href="./allure/json/visual/">Open JSON</a></div></article>
-              </section>
-            </main>
+
+            <section class="grid">
+              <article class="card" data-probe="./allure/desktop/widgets/summary.json">
+                <span class="tag allure">Allure</span><h3>Desktop</h3>
+                <p class="desc">Raw Allure widget JSON (summary).</p>
+                <div class="btns"><a class="btn" href="./allure/desktop/widgets/summary.json">Open JSON</a></div>
+              </article>
+              <article class="card" data-probe="./allure/mobile/widgets/summary.json">…</article>
+              <article class="card" data-probe="./allure/a11y/widgets/summary.json">…</article>
+              <article class="card" data-probe="./allure/visual/widgets/summary.json">…</article>
+            </section>
 
             <footer>
               <span class="muted">Built automatically by GitHub Actions.</span>

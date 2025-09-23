@@ -1,45 +1,51 @@
 import { useEffect, useState } from "react";
-import { Monitor, Smartphone, Accessibility, ChevronRight } from "lucide-react";
+import { Monitor, Smartphone, Accessibility, Image as ImageIcon, ChevronRight } from "lucide-react";
 
 type Status = {
-  workflow: string;
-  project: string;
-  conclusion: "success" | "failure" | "cancelled" | string;
+  conclusion: "success" | "failure" | "unknown";
   updatedAt: string;
-  sha: string;
-  runId: string;
-  runNumber: number;
 };
 
 type Source = {
-  key: "desktop" | "mobile" | "a11y";
+  key: "desktop" | "mobile" | "a11y" | "visual";
   label: string;
+  // Where the user goes on click. Use per-suite Playwright HTML (always published)
+  // or switch to per-suite Allure if you enabled publishing full per-suite Allure sites.
   href: string;
+  // Allure widget summary JSON we publish in the aggregator:
   json: string;
   Icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
 };
 
+const BASE = "https://addyalago.github.io/Beautiful-portfolio";
 const SOURCES: Source[] = [
   {
     key: "desktop",
     label: "E2E Desktop",
-    href: "https://addyalago.github.io/Beautiful-portfolio/allure/desktop/",
-    json: "https://addyalago.github.io/Beautiful-portfolio/desktop/status.json",
+    href: `${BASE}/playwright/desktop/`, // or `${BASE}/allure/desktop/` if you publish per-suite Allure
+    json: `${BASE}/allure/desktop/widgets/summary.json`,
     Icon: Monitor,
   },
   {
     key: "mobile",
     label: "E2E Mobile",
-    href: "https://addyalago.github.io/Beautiful-portfolio/allure/mobile/",
-    json: "https://addyalago.github.io/Beautiful-portfolio/mobile/status.json",
+    href: `${BASE}/playwright/mobile/`,
+    json: `${BASE}/allure/mobile/widgets/summary.json`,
     Icon: Smartphone,
   },
   {
     key: "a11y",
     label: "A11Y",
-    href: "https://addyalago.github.io/Beautiful-portfolio/allure/a11y/",
-    json: "https://addyalago.github.io/Beautiful-portfolio/a11y/status.json",
+    href: `${BASE}/playwright/a11y/`,
+    json: `${BASE}/allure/a11y/widgets/summary.json`,
     Icon: Accessibility,
+  },
+  {
+    key: "visual",
+    label: "Visual",
+    href: `${BASE}/playwright/visual/`,
+    json: `${BASE}/allure/visual/widgets/summary.json`,
+    Icon: ImageIcon,
   },
 ];
 
@@ -49,6 +55,12 @@ function classesFor(conclusion?: string) {
   if (!conclusion || conclusion === "unknown") return "bg-gray-50 text-gray-700 border-gray-200";
   return "bg-rose-50 text-rose-800 border-rose-200";
 }
+
+// Minimal shape from Allure widgets/summary.json
+type AllureSummary = {
+  statistic?: { failed?: number; broken?: number; total?: number };
+  time?: { stop?: number }; // ms epoch
+};
 
 export default function StatusCardsRight() {
   const [data, setData] = useState<Record<string, Status | null>>({});
@@ -61,8 +73,19 @@ export default function StatusCardsRight() {
           try {
             const res = await fetch(s.json, { cache: "no-store" });
             if (!res.ok) throw new Error(String(res.status));
-            const json = (await res.json()) as Status;
-            return [s.key, json] as const;
+            const json = (await res.json()) as AllureSummary;
+
+            const failed = (json.statistic?.failed ?? 0) + (json.statistic?.broken ?? 0);
+            const total = json.statistic?.total ?? 0;
+            const conclusion: Status["conclusion"] =
+              total === 0 ? "unknown" : failed > 0 ? "failure" : "success";
+
+            const stop = json.time?.stop ?? Date.now();
+            const status: Status = {
+              conclusion,
+              updatedAt: new Date(stop).toISOString(),
+            };
+            return [s.key, status] as const;
           } catch {
             return [s.key, null] as const;
           }
@@ -80,7 +103,6 @@ export default function StatusCardsRight() {
   return (
     <div className="h-60 w-full md:w-80" data-testid="status-cards">
       {!hasAnyData ? (
-        // --- SKELETON (only before first paint) ---
         <div data-testid="badges-skeleton" className="grid h-full grid-rows-3 gap-3 animate-pulse">
           {[0, 1, 2].map((i) => (
             <div key={i} className="flex items-center justify-between rounded-xl border px-3 py-2 border-gray-200 bg-gray-50">
@@ -96,7 +118,6 @@ export default function StatusCardsRight() {
           ))}
         </div>
       ) : (
-        // --- REAL CARDS (after fetch) ---
         <div className="grid h-full grid-rows-3 gap-3">
           {SOURCES.map(({ key, label, href, Icon }) => {
             const st = data[key];

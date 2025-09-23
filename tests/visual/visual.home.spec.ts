@@ -1,25 +1,44 @@
-// visual.home.spec.ts
+// tests/visual/visual.home.spec.ts
 import { test, expect } from '@playwright/test';
 
-const widths = [390, 768, 1280] as const;
+const DESKTOP_WIDTHS = [768, 1280] as const;
+const MOBILE_WIDTHS = [390] as const;
 const themes = ['light', 'dark'] as const;
 
 for (const theme of themes) {
-  for (const width of widths) {
-    test(`home visual ${theme} ${width}px`, async ({ page }) => {
+  test.describe(`home visual (${theme})`, () => {
+    test(`mobile`, async ({ page }) => {
       await page.emulateMedia({ colorScheme: theme });
-      await page.setViewportSize({ width, height: 900 });
+      // DO NOT setViewportSize on Mobile Safari project – use device default.
       await page.goto('/');
+      await page.waitForLoadState('networkidle');
 
       const hero = page.getByTestId('section-home');
+      await expect(hero).toBeVisible();
 
-      // Let Playwright name snapshots per project automatically
-      await expect(hero).toHaveScreenshot({
-        animations: 'disabled',
-        caret: 'hide',
-        maxDiffPixels: 300,
-        mask: [page.getByTestId('status-cards')], // hide volatile tiles
-        });
+      // mask only if present
+      const badges = page.getByTestId('status-cards');
+      const mask = (await badges.count()) ? [badges] : [];
+
+      await expect(hero).toHaveScreenshot({ mask, maxDiffPixels: 300 });
     });
-  }
+
+    for (const width of DESKTOP_WIDTHS) {
+      test(`desktop ${width}px`, async ({ page }) => {
+        // This test is meaningful on desktop-like projects (e.g., Desktop Chrome)
+        test.skip(test.info().project.name.includes('Mobile'), 'Skip wide widths on mobile project');
+
+        await page.emulateMedia({ colorScheme: theme });
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto('/');
+        await page.waitForLoadState('networkidle');
+
+        const hero = page.getByTestId('section-home');
+        const badges = hero.getByTestId('status-cards');
+        const mask = (await badges.count()) ? [badges] : [];
+
+        await expect(hero).toHaveScreenshot({ mask, maxDiffPixels: 300 });
+      });
+    }
+  });
 }

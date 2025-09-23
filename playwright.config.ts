@@ -66,42 +66,46 @@ export default defineConfig({
           }),
   projects: [
     // === Visual projects (mobile + desktop) ===
-  {
-    name: 'visual-mobile',
-    testMatch: ['tests/visual/**/*.spec.ts'],
-    use: {
-      ...devices['iPhone 12'],
-      deviceScaleFactor: 3,
-      viewport: { width: 390, height: 844 },
-      hasTouch: true,
-      ...visualUse,
+    {
+      name: 'visual-mobile',
+      testMatch: ['tests/visual/**/*.spec.ts'],
+      use: {
+        ...devices['iPhone 12'],
+        deviceScaleFactor: 3,
+        viewport: { width: 390, height: 844 },
+        hasTouch: true,
+        ...visualUse,
+      },
     },
-  },
-  {
-    name: 'visual-desktop',
-    testMatch: ['tests/visual/**/*.spec.ts'],
-    use: {
-      ...devices['Desktop Chrome'],
-      viewport: { width: 1280, height: 800 },
-      ...visualUse,
+    {
+      name: 'visual-desktop',
+      testMatch: ['tests/visual/**/*.spec.ts'],
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1280, height: 800 },
+        ...visualUse,
+      },
     },
-  },
 
-  {
-    name: 'Desktop Chrome',
-    use: { ...devices['Desktop Chrome'] },
-    testMatch: ['**/*.spec.ts', '!**/*.a11y.spec.ts'],
-  },
-  {
-    name: 'Mobile Safari',
-    use: { ...devices['iPhone 13'] },
-    testMatch: ['**/*.spec.ts', '!**/*.a11y.spec.ts'],
-  },
-  {
-    name: 'A11Y',
-    use: { ...devices['Desktop Chrome'] },
-    testMatch: ['**/*a11y.spec.ts'],
-  },
-]
+    // === Functional E2E projects (exclude visual/a11y) ===
+    {
+      name: 'Desktop Chrome',
+      testMatch: ['tests/e2e/**/*.spec.ts'],
+      testIgnore: ['tests/visual/**', 'tests/a11y/**'],
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'Mobile Safari',
+      testMatch: ['tests/e2e/**/*.spec.ts'],
+      testIgnore: ['tests/visual/**', 'tests/a11y/**'],
+      use: { ...devices['iPhone 13'] }, // keep if you prefer 13 here
+    },
 
+    // === A11Y project (only a11y folder) ===
+    {
+      name: 'A11Y',
+      testMatch: ['tests/a11y/**/*.a11y.spec.ts'],
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
 });

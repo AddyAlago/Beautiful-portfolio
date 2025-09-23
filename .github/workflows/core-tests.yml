@@ -9,7 +9,7 @@ on:
         type: string
       projects:
         description: "Comma-separated Playwright projects (optional)"
-        required: false
+        required: true
         type: string
         default: ""
       node_version:
@@ -43,14 +43,16 @@ jobs:
 
       - name: Run ${{ env.SUITE }} tests
         run: |
+          if [ -z "${{ inputs.projects }}" ]; then
+            echo "ERROR: 'projects' input must be provided (comma-separated project names)."
+            exit 1
+          fi
           export ALLURE_RESULTS_DIR="${{ env.ALLURE_RESULTS_DIR }}"
           EXTRA=""
-          if [ -n "${{ inputs.projects }}" ]; then
-            IFS=',' read -ra PROJS <<< "${{ inputs.projects }}"
-            for p in "${PROJS[@]}"; do EXTRA="$EXTRA --project $p"; done
-          fi
-          # ⬇️ Add your suite-specific filters here if needed (grep/tags/globs)
-          npx playwright test $EXTRA --reporter=line,allure-playwright --output="${{ env.PLAYWRIGHT_HTML_DIR }}"
+          IFS=',' read -ra PROJS <<< "${{ inputs.projects }}"
+          for p in "${PROJS[@]}"; do EXTRA="$EXTRA --project \"$p\""; done
+          eval npx playwright test $EXTRA --reporter=line,allure-playwright --output="${{ env.PLAYWRIGHT_HTML_DIR }}"
+
 
       - name: Upload Playwright HTML (per-suite)
         if: always()

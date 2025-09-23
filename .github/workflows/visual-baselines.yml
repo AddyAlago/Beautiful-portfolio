@@ -1,0 +1,61 @@
+name: Generate visual baselines
+
+on:
+  workflow_dispatch:
+    inputs:
+      project:
+        description: "Playwright project to run (e.g., visual-mobile)"
+        required: false
+        default: "visual-mobile"
+      testPath:
+        description: "Path or glob of visual tests"
+        required: false
+        default: "tests/visual/**/*.spec.ts"
+
+jobs:
+  baselines:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      # (Optional, but recommended) set consistent env for visual runs
+      - name: Env sanity
+        run: |
+          echo "TZ=UTC" >> $GITHUB_ENV
+          echo "LANG=en_US.UTF-8" >> $GITHUB_ENV
+
+      - name: Generate snapshots (update mode)
+        env:
+          # force CI mode if your config gates on process.env.CI
+          CI: "true"
+        run: |
+          npx playwright test "${{ github.event.inputs.testPath }}" \
+            --project="${{ github.event.inputs.project }}" \
+            --update-snapshots
+
+      # Upload both the committed snapshot folders and the test-results (actual/diff)
+      - name: Upload snapshot artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: visual-snapshots-${{ github.run_id }}
+          # Most common snapshot locations; include both patterns:
+          path: |
+            tests/**/-snapshots/**
+            tests/**/__snapshots__/**
+            playwright-report/**
+            test-results/**
+          if-no-files-found: warn

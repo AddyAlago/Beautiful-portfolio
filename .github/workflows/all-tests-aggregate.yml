@@ -146,7 +146,7 @@ jobs:
               # Always publish widgets for badges:
               mkdir -p "_site/allure/${suite}"
               rm -rf "_site/allure/${suite}/widgets"
-              cp -r "tmp/${suite}/data/widgets" "_site/allure/${suite}/widgets"
+              cp -r "tmp/${suite}/widgets" "_site/allure/${suite}/widgets"
 
               # OPTIONAL: also publish the full per-suite Allure site (uncomment if your README links to /allure/<suite>/)
               # rm -rf "_site/allure/${suite}"

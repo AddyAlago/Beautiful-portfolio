@@ -78,7 +78,7 @@ reporter: isCI
       name: 'Visual Mobile',
       testMatch: ['**/visual/**/*.spec.ts', '**/*.visual.spec.ts'],
       testIgnore: ['**/a11y/**'],
-      use: { ...devices['Mobile Safari'] },
+      use: { ...devices['Pixel 7'] },
     },
   ],
 });

@@ -49,7 +49,6 @@ jobs:
           unset PW_TEST_FILTER || true
 
       # Generate snapshots for each requested project.
-      # NOTE: We pass NO PATH here; project.testMatch selects tests/visual/**
       - name: Generate snapshots (update mode)
         env:
           CI: "true"
@@ -66,13 +65,23 @@ jobs:
             npx playwright test --project="$p_trimmed" --update-snapshots
           done
 
+      # Collect updated snapshots into a single folder for artifact upload
+      - name: Collect snapshots
+        if: always()
+        run: |
+          set -euo pipefail
+          mkdir -p collected-snapshots
+          find tests -type d -name "*-snapshots" -print0 | xargs -0 -I{} cp -r "{}" collected-snapshots/ || true
+          find tests -type d -name "__snapshots__" -print0 | xargs -0 -I{} cp -r "{}" collected-snapshots/ || true
+          echo "Collected snapshots:"
+          ls -R collected-snapshots || true
+
       - name: Upload snapshot artifacts
         uses: actions/upload-artifact@v4
         with:
           name: visual-snapshots-${{ github.run_id }}
           path: |
-            tests/**/-snapshots/**
-            tests/**/__snapshots__/**
+            collected-snapshots/**
             test-results/**
             playwright-report/**
           if-no-files-found: warn

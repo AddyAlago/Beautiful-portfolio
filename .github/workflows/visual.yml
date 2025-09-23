@@ -1,4 +1,5 @@
-name: Visual (compare)
+# .github/workflows/visual.yml
+name: Visual
 
 on:
   pull_request:
@@ -11,64 +12,10 @@ on:
   workflow_dispatch: {}
 
 jobs:
-  visual:
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    strategy:
-      fail-fast: false
-      matrix:
-        project: [visual-mobile, visual-desktop]
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
-          cache: "npm"
-
-      - name: Install deps
-        run: npm ci
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Set stable env
-        run: |
-          echo "TZ=UTC" >> $GITHUB_ENV
-          echo "LANG=en_US.UTF-8" >> $GITHUB_ENV
-
-      # Optional: build if your tests need it
-      - name: Build (if needed)
-        run: |
-          set -euo pipefail
-          if [ -f package.json ] && jq -er '.scripts.build' package.json >/dev/null 2>&1; then
-            npm run build
-          fi
-
-      # Optional: start dev server if your tests expect it running
-      - name: Start app (if needed)
-        run: |
-          set -euo pipefail
-          if jq -er '.scripts.start' package.json >/dev/null 2>&1; then
-            nohup npm run start >/dev/null 2>&1 &
-            sleep 3
-          fi
-
-      - name: Visual compare - ${{ matrix.project }}
-        run: |
-          set -euo pipefail
-          npx playwright test --project="${{ matrix.project }}"
-
-      - name: Upload artifacts (reports & diffs)
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: visual-artifacts-${{ matrix.project }}
-          path: |
-            test-results/**
-            playwright-report/**
+  call-core:
+    uses: ./.github/workflows/core-tests.yml
+    permissions:
+      contents: write
+    with:
+      suite: visual
+      projects: "Visual Desktop,Visual Mobile"  # matches your Playwright project names

@@ -1,4 +1,5 @@
-name: A11Y Tests
+name: A11Y
+
 on:
   push:
     branches: [ main ]
@@ -7,12 +8,9 @@ on:
 
 jobs:
   call-core:
+    uses: ./.github/workflows/core-tests.yml
     permissions:
       contents: write
-      id-token: write
-    uses: ./.github/workflows/e2e-core.yml
     with:
-      project_name: A11y
-      artifact_prefix: a11y
-      test_args: --grep @a11y
-      publish_to: a11y
+      suite: a11y
+      projects: "A11Y"

@@ -1,14 +1,16 @@
-name: Mobile
+name: E2E Mobile
+
 on:
+  push:
+    branches: [ main ]
+  pull_request:
   workflow_dispatch:
-    inputs:
-      projects:
-        description: "Comma-separated projects"
-        required: false
-        default: "Mobile Safari"
+
 jobs:
   call-core:
     uses: ./.github/workflows/core-tests.yml
+    permissions:
+      contents: write
     with:
       suite: mobile
-      projects: ${{ github.event.inputs.projects || 'Mobile Safari' }}
+      projects: "Mobile E2E"

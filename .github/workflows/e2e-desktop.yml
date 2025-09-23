@@ -8,12 +8,9 @@ on:
 
 jobs:
   call-core:
+    uses: ./.github/workflows/core-tests.yml
     permissions:
       contents: write
-      id-token: write
-    uses: ./.github/workflows/e2e-core.yml
     with:
-      project_name: Desktop Chrome
-      artifact_prefix: desktop
-      test_args: --grep-invert "@a11y"
-      publish_to: desktop
+      suite: desktop
+      projects: "Desktop E2E"   # <-- matches your Playwright project name

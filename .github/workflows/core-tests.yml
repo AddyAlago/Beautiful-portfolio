@@ -8,11 +8,11 @@ on:
         required: true
         type: string
       projects:
-        description: "Comma-separated Playwright projects (optional)"
+        description: "Comma-separated Playwright projects to run"
         required: true
         type: string
-        default: ""
       node_version:
+        description: "Node version"
         required: false
         type: string
         default: "20"
@@ -27,15 +27,18 @@ jobs:
       CI: "true"
 
     steps:
-      - uses: actions/checkout@v4
-        with: { persist-credentials: false }
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ inputs.node_version }}
           cache: "npm"
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm ci
 
       - name: Install Playwright browsers
@@ -51,16 +54,18 @@ jobs:
           EXTRA=""
           IFS=',' read -ra PROJS <<< "${{ inputs.projects }}"
           for p in "${PROJS[@]}"; do EXTRA="$EXTRA --project \"$p\""; done
-          eval npx playwright test $EXTRA --reporter=line,allure-playwright --output="${{ env.PLAYWRIGHT_HTML_DIR }}"
+          # Reporters are set in playwright.config.ts; don’t override here
+          eval npx playwright test $EXTRA --output="${{ env.PLAYWRIGHT_HTML_DIR }}"
 
-
+      
+      # --- Upload artifacts ---
       - name: Upload Playwright HTML (per-suite)
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: playwright-report-${{ env.SUITE }}
           path: ${{ env.PLAYWRIGHT_HTML_DIR }}
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 7
 
       - name: Upload Allure results (per-suite)
@@ -69,5 +74,5 @@ jobs:
         with:
           name: allure-results-${{ env.SUITE }}
           path: ${{ env.ALLURE_RESULTS_DIR }}
-          if-no-files-found: ignore
+          if-no-files-found: error
           retention-days: 7

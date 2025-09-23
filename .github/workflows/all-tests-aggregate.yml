@@ -7,14 +7,13 @@ on:
   workflow_dispatch:
     inputs:
       projects:
-        description: "Comma-separated Playwright projects for all suites (optional)"
+        description: "Override Playwright projects for all suites (optional; usually leave empty)"
         required: false
         default: ""
 
-# Concurrency only for publish step via job-level grouping (see below)
-
 jobs:
   run-matrix:
+    name: Run ${{ matrix.suite }}
     strategy:
       fail-fast: false
       matrix:
@@ -30,22 +29,26 @@ jobs:
     uses: ./.github/workflows/core-tests.yml
     with:
       suite: ${{ matrix.suite }}
-      projects: ${{ matrix.projects }}
+      # Allow a manual override via workflow_dispatch input; otherwise use the matrix mapping
+      projects: ${{ github.event.inputs.projects || matrix.projects }}
 
   aggregate:
     name: Aggregate Allure & Publish
     runs-on: ubuntu-latest
     needs: [ run-matrix ]
-    if: ${{ always() }}
+    if: ${{ always() }}   # ✅ run even if some suites failed
     concurrency:
       group: gh-pages-deploy
       cancel-in-progress: false
 
     steps:
-      - uses: actions/checkout@v4
-        with: { persist-credentials: false }
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
           cache: "npm"
@@ -53,7 +56,7 @@ jobs:
       - name: Install Allure CLI
         run: |
           npm i -g allure-commandline@2.x
-          allure --version
+          allure --version || true
 
       - name: Download suite artifacts
         uses: actions/download-artifact@v4
@@ -61,12 +64,29 @@ jobs:
           path: artifacts
         continue-on-error: true
 
-      - name: Merge allure-results
+      - name: Debug: show downloaded artifacts
+        if: always()
         run: |
+          echo "Artifacts tree (depth 3):"
+          find artifacts -maxdepth 3 -type d -print || true
+          echo "Files that look like allure results:"
+          find artifacts -type f \( -name '*.json' -o -name '*.xml' \) | sed 's/^/  /' | head -n 200 || true
+
+      - name: Merge allure-results (robust)
+        shell: bash
+        run: |
+          shopt -s nullglob
           mkdir -p merged-allure-results
-          for d in artifacts/allure-results-*; do
-            [ -d "$d" ] && cp -r "$d"/* merged-allure-results/ || true
+          # copy any directory that looks like allure results
+          for d in artifacts/**/allure-results artifacts/allure-results-*; do
+            if [ -d "$d" ]; then
+              echo "Merging: $d"
+              cp -r "$d"/* merged-allure-results/ || true
+            fi
           done
+          echo "Merged case files count:"
+          find merged-allure-results -maxdepth 1 -type f \( -name '*.json' -o -name '*.xml' \) ! -name 'categories.json' ! -name 'executor.json' | wc -l
+          ls -la merged-allure-results || true
 
       # OPTIONAL: preserve trend history by pulling prior gh-pages history
       - name: Pull existing history (optional)
@@ -79,26 +99,46 @@ jobs:
             cp -r gh-pages/allure/combined/history merged-allure-results/history || true
           fi
 
-      - name: Generate combined Allure
+      - name: Generate combined Allure (only if data present)
+        shell: bash
         run: |
-          rm -rf allure-report
-          allure generate merged-allure-results --clean -o allure-report
+          has_cases=$(find merged-allure-results -maxdepth 1 -type f \( -name '*.json' -o -name '*.xml' \) ! -name 'categories.json' ! -name 'executor.json' | wc -l)
+          echo "has_cases=$has_cases"
+          if [ "$has_cases" -gt 0 ]; then
+            rm -rf allure-report
+            allure generate merged-allure-results --clean -o allure-report
+            echo "Generated combined Allure OK."
+          else
+            echo "No test-cases in merged-allure-results (only history/executor?). Creating placeholder."
+            rm -rf allure-report
+            mkdir -p allure-report
+            cat > allure-report/index.html <<'HTML'
+            <!doctype html><meta charset="utf-8">
+            <title>No Results</title><body><h1>No Allure results available for this run.</h1></body>
+            HTML
+          fi
 
       - name: Prepare _site (combined, per-suite JSON, per-suite HTML)
+        shell: bash
         run: |
           rm -rf _site
           mkdir -p _site/allure/combined _site/allure/json _site/playwright
-          cp -r allure-report/* _site/allure/combined/
+          # Combined Allure
+          cp -r allure-report/* _site/allure/combined/ || true
+          # Per-suite raw JSON (for badges)
+          shopt -s nullglob
           for d in artifacts/allure-results-*; do
             suite="${d##*/}"; suite="${suite#allure-results-}"
             mkdir -p "_site/allure/json/${suite}"
             cp -r "$d"/* "_site/allure/json/${suite}/" || true
           done
+          # Per-suite Playwright HTML
           for d in artifacts/playwright-report-*; do
             suite="${d##*/}"; suite="${suite#playwright-report-}"
             mkdir -p "_site/playwright/${suite}"
             cp -r "$d"/* "_site/playwright/${suite}/" || true
           done
+
       - name: Build root index (combined + per-suite)
         if: always()
         run: |
@@ -180,18 +220,18 @@ jobs:
 
               <h2>Playwright HTML Reports (Per-Suite)</h2>
               <section class="grid">
-                <article class="card" data-probe="./desktop/"><span class="tag pw">Playwright</span><h3>Desktop</h3><p class="desc">Full desktop browser suite.</p><div class="btns"><a class="btn" href="./desktop/">Open report</a></div></article>
-                <article class="card" data-probe="./mobile/"><span class="tag pw">Playwright</span><h3>Mobile</h3><p class="desc">Mobile emulation / device profiles.</p><div class="btns"><a class="btn" href="./mobile/">Open report</a></div></article>
-                <article class="card" data-probe="./a11y/"><span class="tag pw">Playwright</span><h3>A11Y</h3><p class="desc">Accessibility checks & violations.</p><div class="btns"><a class="btn" href="./a11y/">Open report</a></div></article>
-                <article class="card" data-probe="./visual/"><span class="tag pw">Playwright</span><h3>Visual</h3><p class="desc">Visual regression reports.</p><div class="btns"><a class="btn" href="./visual/">Open report</a></div></article>
+                <article class="card" data-probe="./playwright/desktop/"><span class="tag pw">Playwright</span><h3>Desktop</h3><p class="desc">Full desktop browser suite.</p><div class="btns"><a class="btn" href="./playwright/desktop/">Open report</a></div></article>
+                <article class="card" data-probe="./playwright/mobile/"><span class="tag pw">Playwright</span><h3>Mobile</h3><p class="desc">Mobile emulation / device profiles.</p><div class="btns"><a class="btn" href="./playwright/mobile/">Open report</a></div></article>
+                <article class="card" data-probe="./playwright/a11y/"><span class="tag pw">Playwright</span><h3>A11Y</h3><p class="desc">Accessibility checks & violations.</p><div class="btns"><a class="btn" href="./playwright/a11y/">Open report</a></div></article>
+                <article class="card" data-probe="./playwright/visual/"><span class="tag pw">Playwright</span><h3>Visual</h3><p class="desc">Visual regression reports.</p><div class="btns"><a class="btn" href="./playwright/visual/">Open report</a></div></article>
               </section>
 
-              <h2>Allure Reports (Per-Suite)</h2>
+              <h2>Allure Raw JSON (Per-Suite)</h2>
               <section class="grid">
-                <article class="card" data-probe="./allure/desktop/"><span class="tag allure">Allure</span><h3>Desktop</h3><p class="desc">Drill-down results, history & trends.</p><div class="btns"><a class="btn" href="./allure/desktop/">Open Allure</a></div></article>
-                <article class="card" data-probe="./allure/mobile/"><span class="tag allure">Allure</span><h3>Mobile</h3><p class="desc">Mobile suite with Allure analytics.</p><div class="btns"><a class="btn" href="./allure/mobile/">Open Allure</a></div></article>
-                <article class="card" data-probe="./allure/a11y/"><span class="tag allure">Allure</span><h3>A11Y</h3><p class="desc">Accessibility scan results (axe).</p><div class="btns"><a class="btn" href="./allure/a11y/">Open Allure</a></div></article>
-                <article class="card" data-probe="./allure/visual/"><span class="tag allure">Allure</span><h3>Visual</h3><p class="desc">Visual regression suite.</p><div class="btns"><a class="btn" href="./allure/visual/">Open Allure</a></div></article>
+                <article class="card" data-probe="./allure/json/desktop/"><span class="tag allure">Allure</span><h3>Desktop</h3><p class="desc">Raw Allure results for badges.</p><div class="btns"><a class="btn" href="./allure/json/desktop/">Open JSON</a></div></article>
+                <article class="card" data-probe="./allure/json/mobile/"><span class="tag allure">Allure</span><h3>Mobile</h3><p class="desc">Raw Allure results for badges.</p><div class="btns"><a class="btn" href="./allure/json/mobile/">Open JSON</a></div></article>
+                <article class="card" data-probe="./allure/json/a11y/"><span class="tag allure">Allure</span><h3>A11Y</h3><p class="desc">Raw Allure results for badges.</p><div class="btns"><a class="btn" href="./allure/json/a11y/">Open JSON</a></div></article>
+                <article class="card" data-probe="./allure/json/visual/"><span class="tag allure">Allure</span><h3>Visual</h3><p class="desc">Raw Allure results for badges.</p><div class="btns"><a class="btn" href="./allure/json/visual/">Open JSON</a></div></article>
               </section>
             </main>
 
@@ -219,7 +259,6 @@ jobs:
           sed -i "s|__SHA_SHORT__|$SHA_SHORT|g" _site/index.html
           sed -i "s|__NOW__|$NOW|g" _site/index.html
 
-
       - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v3
         with:
@@ -227,8 +266,17 @@ jobs:
           publish_dir: _site
           force_orphan: false
 
-      - name: Job summary
+      - name: Summary links
+        if: always()
         run: |
-          echo "::notice title=Published::Allure: /allure/combined/index.html"
-          echo "::notice::Per-suite JSON: /allure/json/<suite>/"
-          echo "::notice::Playwright HTML: /playwright/<suite>/"
+          echo "### 📊 Published reports" >> $GITHUB_STEP_SUMMARY
+          echo "- Root index: https://addyalago.github.io/Beautiful-portfolio/" >> $GITHUB_STEP_SUMMARY
+          echo "- Combined Allure: https://addyalago.github.io/Beautiful-portfolio/allure/combined/" >> $GITHUB_STEP_SUMMARY
+          echo "- Playwright Desktop: https://addyalago.github.io/Beautiful-portfolio/playwright/desktop/" >> $GITHUB_STEP_SUMMARY
+          echo "- Playwright Mobile: https://addyalago.github.io/Beautiful-portfolio/playwright/mobile/" >> $GITHUB_STEP_SUMMARY
+          echo "- Playwright A11Y: https://addyalago.github.io/Beautiful-portfolio/playwright/a11y/" >> $GITHUB_STEP_SUMMARY
+          echo "- Playwright Visual: https://addyalago.github.io/Beautiful-portfolio/playwright/visual/" >> $GITHUB_STEP_SUMMARY
+          echo "- JSON Desktop: https://addyalago.github.io/Beautiful-portfolio/allure/json/desktop/" >> $GITHUB_STEP_SUMMARY
+          echo "- JSON Mobile: https://addyalago.github.io/Beautiful-portfolio/allure/json/mobile/" >> $GITHUB_STEP_SUMMARY
+          echo "- JSON A11Y: https://addyalago.github.io/Beautiful-portfolio/allure/json/a11y/" >> $GITHUB_STEP_SUMMARY
+          echo "- JSON Visual: https://addyalago.github.io/Beautiful-portfolio/allure/json/visual/" >> $GITHUB_STEP_SUMMARY

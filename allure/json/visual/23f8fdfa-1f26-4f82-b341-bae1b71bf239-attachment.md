@@ -1,0 +1,279 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - region "Notifications (F8)":
+    - list
+  - generic [ref=e3]:
+    - button [ref=e4]:
+      - img [ref=e5]
+    - navigation [ref=e7]:
+      - generic [ref=e8]:
+        - link "Addy Alago Portfolio" [ref=e9] [cursor=pointer]:
+          - /url: "#home"
+          - generic [ref=e10] [cursor=pointer]:
+            - generic [ref=e11] [cursor=pointer]: Addy Alago
+            - text: Portfolio
+        - generic [ref=e12]:
+          - link "Home" [ref=e13] [cursor=pointer]:
+            - /url: "#home"
+          - link "About" [ref=e14] [cursor=pointer]:
+            - /url: "#about"
+          - link "Skills" [ref=e15] [cursor=pointer]:
+            - /url: "#skills"
+          - link "Projects" [ref=e16] [cursor=pointer]:
+            - /url: "#projects"
+          - link "Contact" [ref=e17] [cursor=pointer]:
+            - /url: "#contact"
+          - link "Tests" [ref=e18] [cursor=pointer]:
+            - /url: https://addyalago.github.io/Beautiful-portfolio/
+          - link "Resume" [ref=e19] [cursor=pointer]:
+            - /url: https://drive.google.com/file/d/1Ttln3b5_RWDozxSC51wLPDfIU-_OkRGa/view?usp=sharing
+    - main [ref=e20]:
+      - generic [ref=e21]:
+        - generic [ref=e23]:
+          - heading "Welcome, I'm Addy Alago" [level=1] [ref=e24]:
+            - generic [ref=e25]: Welcome, I'm
+            - generic [ref=e26]: Addy
+            - generic [ref=e27]: Alago
+          - paragraph [ref=e28]: For over 10 years, it has been my passion to deliver high quality software through rigorous testing and automation.
+          - generic [ref=e29]:
+            - img "Addy Alago" [ref=e30]
+            - generic [ref=e32]:
+              - link "E2E Desktop success · 9/22/2025, 8:30:00 PM" [ref=e33] [cursor=pointer]:
+                - /url: https://addyalago.github.io/Beautiful-portfolio/playwright/desktop/
+                - generic [ref=e34] [cursor=pointer]:
+                  - img [ref=e35] [cursor=pointer]
+                  - generic [ref=e37] [cursor=pointer]:
+                    - generic [ref=e38] [cursor=pointer]: E2E Desktop
+                    - generic [ref=e39] [cursor=pointer]: success · 9/22/2025, 8:30:00 PM
+                  - img [ref=e40] [cursor=pointer]
+              - link "E2E Mobile success · 9/22/2025, 8:30:00 PM" [ref=e42] [cursor=pointer]:
+                - /url: https://addyalago.github.io/Beautiful-portfolio/playwright/mobile/
+                - generic [ref=e43] [cursor=pointer]:
+                  - img [ref=e44] [cursor=pointer]
+                  - generic [ref=e46] [cursor=pointer]:
+                    - generic [ref=e47] [cursor=pointer]: E2E Mobile
+                    - generic [ref=e48] [cursor=pointer]: success · 9/22/2025, 8:30:00 PM
+                  - img [ref=e49] [cursor=pointer]
+              - link "A11Y success · 9/22/2025, 8:30:00 PM" [ref=e51] [cursor=pointer]:
+                - /url: https://addyalago.github.io/Beautiful-portfolio/playwright/a11y/
+                - generic [ref=e52] [cursor=pointer]:
+                  - img [ref=e53] [cursor=pointer]
+                  - generic [ref=e59] [cursor=pointer]:
+                    - generic [ref=e60] [cursor=pointer]: A11Y
+                    - generic [ref=e61] [cursor=pointer]: success · 9/22/2025, 8:30:00 PM
+                  - img [ref=e62] [cursor=pointer]
+              - link "Visual success · 9/22/2025, 8:30:00 PM" [ref=e64] [cursor=pointer]:
+                - /url: https://addyalago.github.io/Beautiful-portfolio/playwright/visual/
+                - generic [ref=e65] [cursor=pointer]:
+                  - img [ref=e66] [cursor=pointer]
+                  - generic [ref=e70] [cursor=pointer]:
+                    - generic [ref=e71] [cursor=pointer]: Visual
+                    - generic [ref=e72] [cursor=pointer]: success · 9/22/2025, 8:30:00 PM
+                  - img [ref=e73] [cursor=pointer]
+          - link "View My Work" [ref=e76] [cursor=pointer]:
+            - /url: "#projects"
+        - generic [ref=e77]:
+          - generic [ref=e78]: Scroll
+          - img [ref=e79]
+      - generic [ref=e82]:
+        - heading "About Me" [level=2] [ref=e83]:
+          - text: About
+          - generic [ref=e84]: Me
+        - generic [ref=e85]:
+          - generic [ref=e86]:
+            - heading "Software QA Automation Engineer and Manager with over 10 years of experience in test automation." [level=3] [ref=e87]
+            - paragraph [ref=e88]: Passionate leader, and mentor with a proven track record of building and leading high-performing teams.
+            - paragraph [ref=e89]: I excel in fostering a culture of quality and continuous improvement, ensuring that software products meet the highest standards of excellence.
+            - generic [ref=e90]:
+              - link "Contact" [ref=e91] [cursor=pointer]:
+                - /url: "#contact"
+              - link "Download Resume" [ref=e92] [cursor=pointer]:
+                - /url: https://drive.google.com/file/d/1Ttln3b5_RWDozxSC51wLPDfIU-_OkRGa/view?usp=sharing
+          - generic [ref=e93]:
+            - generic [ref=e95]:
+              - img [ref=e97]
+              - generic [ref=e100]:
+                - heading "Test Automation" [level=4] [ref=e101]
+                - paragraph [ref=e102]: Creating first in class test automation with modern frameworks such as Playwright, Cypress, and Appium.
+            - generic [ref=e104]:
+              - img [ref=e106]
+              - generic [ref=e109]:
+                - heading "People Management" [level=4] [ref=e110]
+                - paragraph [ref=e111]: I excel in people management. I pride myself on being a mentor and a leader that puts his team's career development first.
+            - generic [ref=e113]:
+              - img [ref=e115]
+              - generic [ref=e118]:
+                - heading "Well Rounded" [level=4] [ref=e119]
+                - paragraph [ref=e120]: Quality is achieved by more than just testing, I am a certfieid scrum master (SCM) as well as a certified project manager (CSPO) which enables me to take a holistic approach to software quality.
+      - generic [ref=e122]:
+        - heading "My Skills" [level=2] [ref=e123]:
+          - text: My
+          - generic [ref=e124]: Skills
+        - generic [ref=e125]:
+          - button "all" [ref=e126]
+          - button "certifications" [ref=e127]
+          - button "technologies" [ref=e128]
+        - generic [ref=e129]:
+          - generic [ref=e130]:
+            - heading "Certified ScrumMaster (CSM)" [level=3] [ref=e132]
+            - generic [ref=e136]: 100%
+          - generic [ref=e137]:
+            - heading "Certified Scrum Product Owner® (CSPO)" [level=3] [ref=e139]
+            - generic [ref=e143]: 100%
+          - generic [ref=e144]:
+            - heading "WAI0.1x Accesibility" [level=3] [ref=e146]
+            - generic [ref=e150]: 100%
+          - generic [ref=e151]:
+            - heading "Certified SAFe® 6 Agilist" [level=3] [ref=e153]
+            - generic [ref=e157]: 100%
+          - generic [ref=e158]:
+            - heading "Certified Tester, ASTQB/ISTQB" [level=3] [ref=e160]
+            - generic [ref=e164]: 100%
+          - generic [ref=e165]:
+            - heading "HTML/CSS" [level=3] [ref=e167]
+            - generic [ref=e171]: 95%
+          - generic [ref=e172]:
+            - heading "C#" [level=3] [ref=e174]
+            - generic [ref=e178]: 90%
+          - generic [ref=e179]:
+            - heading "React" [level=3] [ref=e181]
+            - generic [ref=e185]: 90%
+          - generic [ref=e186]:
+            - heading "TypeScript" [level=3] [ref=e188]
+            - generic [ref=e192]: 85%
+          - generic [ref=e193]:
+            - heading "Pytest" [level=3] [ref=e195]
+            - generic [ref=e199]: 90%
+          - generic [ref=e200]:
+            - heading "Cypress" [level=3] [ref=e202]
+            - generic [ref=e206]: 95%
+          - generic [ref=e207]:
+            - heading "Appium" [level=3] [ref=e209]
+            - generic [ref=e213]: 90%
+          - generic [ref=e214]:
+            - heading "Playwright" [level=3] [ref=e216]
+            - generic [ref=e220]: 90%
+          - generic [ref=e221]:
+            - heading "Node.js" [level=3] [ref=e223]
+            - generic [ref=e227]: 80%
+          - generic [ref=e228]:
+            - heading "SQL" [level=3] [ref=e230]
+            - generic [ref=e234]: 90%
+          - generic [ref=e235]:
+            - heading "Saucelabs" [level=3] [ref=e237]
+            - generic [ref=e241]: 70%
+          - generic [ref=e242]:
+            - heading "Firebase" [level=3] [ref=e244]
+            - generic [ref=e248]: 85%
+      - generic [ref=e250]:
+        - heading "Featured Projects" [level=2] [ref=e251]:
+          - text: Featured
+          - generic [ref=e252]: Projects
+        - paragraph [ref=e253]: Here are some of my recent projects. Each project was carefully crafted with attention to detail, performance, and user experience.
+        - generic [ref=e254]:
+          - generic [ref=e255]:
+            - img "Visual Diff Framework" [ref=e257]
+            - generic [ref=e258]:
+              - generic [ref=e259]:
+                - generic [ref=e260]: Javascript
+                - generic [ref=e261]: Backstop
+                - generic [ref=e262]: Regression Testing
+              - heading "Visual Diff Framework" [level=3] [ref=e263]
+              - paragraph [ref=e264]: A simple tool to visually compare visual differences between production and staging environments.
+              - generic [ref=e266]:
+                - link [ref=e267] [cursor=pointer]:
+                  - /url: https://github.com/AddyAlago/VisualDiffSuite
+                  - img [ref=e268] [cursor=pointer]
+                - link [ref=e272] [cursor=pointer]:
+                  - /url: https://github.com/AddyAlago/VisualDiffSuite
+                  - img [ref=e273] [cursor=pointer]
+          - generic [ref=e276]:
+            - img "Grid News Cypress Framework" [ref=e278]
+            - generic [ref=e279]:
+              - generic [ref=e280]:
+                - generic [ref=e281]: Cypress
+                - generic [ref=e282]: Typescript
+                - generic [ref=e283]: Startup Launch
+              - heading "Grid News Cypress Framework" [level=3] [ref=e284]
+              - paragraph [ref=e285]: Behavior driven Cypress testing framework for Grid News launch
+              - generic [ref=e287]:
+                - link [ref=e288] [cursor=pointer]:
+                  - /url: https://github.com/AddyAlago/CypressIntegration
+                  - img [ref=e289] [cursor=pointer]
+                - link [ref=e293] [cursor=pointer]:
+                  - /url: https://github.com/AddyAlago/CypressIntegration
+                  - img [ref=e294] [cursor=pointer]
+          - generic [ref=e297]:
+            - img "Lighthouse server" [ref=e299]
+            - generic [ref=e300]:
+              - generic [ref=e301]:
+                - generic [ref=e302]: Google Lighthouse
+                - generic [ref=e303]: Typescript
+                - generic [ref=e304]: Accessibility
+              - heading "Lighthouse server" [level=3] [ref=e305]
+              - paragraph [ref=e306]: Fully automated Lighthouse server for performance testing and reporting on each new buils.
+              - generic [ref=e308]:
+                - link [ref=e309] [cursor=pointer]:
+                  - /url: https://github.com/AddyAlago/lhci
+                  - img [ref=e310] [cursor=pointer]
+                - link [ref=e314] [cursor=pointer]:
+                  - /url: https://github.com/AddyAlago/lhci
+                  - img [ref=e315] [cursor=pointer]
+        - link "Check My Github" [ref=e319] [cursor=pointer]:
+          - /url: https://github.com/AddyAlago
+          - text: Check My Github
+          - img [ref=e320] [cursor=pointer]
+      - generic [ref=e323]:
+        - heading "Get In Touch" [level=2] [ref=e324]:
+          - text: Get In
+          - generic [ref=e325]: Touch
+        - paragraph [ref=e326]: Have a project in mind or want to collaborate? Feel free to reach out. I'm always open to discussing new opportunities.
+        - generic [ref=e327]:
+          - generic [ref=e328]:
+            - heading "Contact Information" [level=3] [ref=e329]
+            - generic [ref=e330]:
+              - generic [ref=e331]:
+                - img [ref=e333]
+                - generic [ref=e336]:
+                  - heading "Email" [level=4] [ref=e337]
+                  - link "me@addicuss.com" [ref=e338] [cursor=pointer]:
+                    - /url: mailto:me@addicuss.com
+              - generic [ref=e339]:
+                - img [ref=e341]
+                - generic [ref=e343]:
+                  - heading "Phone" [level=4] [ref=e344]
+                  - link "+1 (540) 466-4770" [ref=e345] [cursor=pointer]:
+                    - /url: tel:+15404664770
+              - generic [ref=e346]:
+                - img [ref=e348]
+                - generic [ref=e351]:
+                  - heading "Location" [level=4] [ref=e352]
+                  - generic [ref=e353]: Harrisonburg, Virginia 22802
+            - generic [ref=e354]:
+              - heading "Connect With Me" [level=4] [ref=e355]
+              - link [ref=e357] [cursor=pointer]:
+                - /url: https://www.linkedin.com/in/addicuss/
+                - img [ref=e358] [cursor=pointer]
+          - generic [ref=e362]:
+            - heading "Send a Message" [level=3] [ref=e363]
+            - generic [ref=e364]:
+              - generic [ref=e365]:
+                - generic [ref=e366]: Your Name
+                - textbox "Your Name" [ref=e367]
+              - generic [ref=e368]:
+                - generic [ref=e369]: Your Email
+                - textbox "Your Email" [ref=e370]
+              - generic [ref=e371]:
+                - generic [ref=e372]: Your Message
+                - textbox "Your Message" [ref=e373]
+              - button "Send Message" [ref=e374]:
+                - text: Send Message
+                - img [ref=e375]
+    - contentinfo [ref=e378]:
+      - paragraph
+      - link [ref=e379] [cursor=pointer]:
+        - /url: "#home"
+        - img [ref=e380] [cursor=pointer]
+```

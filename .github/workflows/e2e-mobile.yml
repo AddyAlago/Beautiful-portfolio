@@ -1,19 +1,14 @@
-name: E2E Mobile
+name: Mobile
 on:
-  push:
-    branches: [ main ]
-  pull_request:
   workflow_dispatch:
-
+    inputs:
+      projects:
+        description: "Comma-separated projects"
+        required: false
+        default: "Mobile Safari"
 jobs:
   call-core:
-    # ✅ grant the permissions the core requests
-    permissions:
-      contents: write
-      id-token: write
-    uses: ./.github/workflows/e2e-core.yml
+    uses: ./.github/workflows/core-tests.yml
     with:
-      project_name: Mobile Safari
-      artifact_prefix: mobile
-      test_args: --grep-invert @a11y
-      publish_to: mobile
+      suite: mobile
+      projects: ${{ github.event.inputs.projects || 'Mobile Safari' }}

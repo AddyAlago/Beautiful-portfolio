@@ -1,111 +1,96 @@
 // playwright.config.ts
 import { defineConfig, devices } from '@playwright/test';
 
-
 const isCI = !!process.env.CI;
-const DEV_HOST = '127.0.0.1';
-const DEV_PORT = 5173;
-const PREVIEW_HOST = '127.0.0.1';
-const PREVIEW_PORT = 4173;
-const visualUse = {
-  // Deterministic knobs for screenshots
-  locale: 'en-US',
-  timezoneId: 'UTC',
-  colorScheme: 'light' as const,   
-  animations: 'disabled' as const, 
-};
+
+// You can override these via env if you want different ports/commands:
+//   PLAYWRIGHT_BASE_URL, PLAYWRIGHT_WEB_SERVER_CMD
+const DEFAULT_DEV_URL = 'http://localhost:5173';
 
 export default defineConfig({
   testDir: 'tests',
-    testMatch: [
-    '**/e2e/**/*.spec.ts',
-    '**/visual/**/*.spec.ts',
-    '**/a11y/**/*.spec.ts',
-  ],
-  fullyParallel: true,
-  timeout: 30_000,
-  retries: isCI ? 2 : 0,
-  forbidOnly: isCI,
+
+  // ✅ Base URL used by page.goto('/') across ALL projects
+  use: {
+    baseURL: process.env.PLAYWRIGHT_BASE_URL || DEFAULT_DEV_URL,
+    // (optional) trace/screenshot/video defaults go here
+  },
+
+  // ✅ Start the app for tests. By default, use Vite dev on 5173.
+  //    If you prefer preview in CI, set PLAYWRIGHT_WEB_SERVER_CMD in the workflow.
+  webServer: {
+    command:
+      process.env.PLAYWRIGHT_WEB_SERVER_CMD ||
+      'npm run dev -- --port 5173',
+    url: process.env.PLAYWRIGHT_BASE_URL || DEFAULT_DEV_URL,
+    reuseExistingServer: !isCI,
+    timeout: 120 * 1000,
+  },
+
   reporter: isCI
     ? [
         ['github'],
         ['html', { open: 'never' }],
-        ['allure-playwright', { resultsDir: 'allure-results', detail: true, suiteTitle: true }],
+        [
+          'allure-playwright',
+          {
+            resultsDir: process.env.ALLURE_RESULTS_DIR || 'allure-results',
+            detail: true,
+            suiteTitle: true,
+          },
+        ],
       ]
     : [
         ['list'],
         ['html', { open: 'never' }],
-        ['allure-playwright', { resultsDir: 'allure-results', detail: true, suiteTitle: true }],
+        [
+          'allure-playwright',
+          {
+            resultsDir: process.env.ALLURE_RESULTS_DIR || 'allure-results',
+            detail: true,
+            suiteTitle: true,
+          },
+        ],
       ],
-  use: {
-    baseURL:
-      process.env.BASE_URL ||
-      (isCI
-        ? `http://${PREVIEW_HOST}:${PREVIEW_PORT}`
-        : `http://${DEV_HOST}:${DEV_PORT}`),
-    trace: 'on-first-retry',
-    video: 'retain-on-failure',
-    screenshot: 'only-on-failure',
-  },
-  webServer: process.env.BASE_URL
-    ? undefined
-    : (isCI
-        ? {
-            // Preview uses a fixed host & port
-            command: `npm run build && npm run preview -- --port=${PREVIEW_PORT} --host ${PREVIEW_HOST}`,
-            url: `http://${PREVIEW_HOST}:${PREVIEW_PORT}`,
-            timeout: 180_000,
-            reuseExistingServer: false,
-          }
-        : {
-            // Dev must match the URL host/port exactly
-            command: `npm run dev -- --port=${DEV_PORT} --host ${DEV_HOST} --strictPort`,
-            url: `http://${DEV_HOST}:${DEV_PORT}`,
-            timeout: 180_000,
-            reuseExistingServer: true,
-          }),
-  projects: [
-    // === Visual projects (mobile + desktop) ===
-    {
-      name: 'visual-mobile',
-      testMatch: ['tests/visual/**/*.spec.ts'],
-      use: {
-        ...devices['iPhone 12'],
-        deviceScaleFactor: 3,
-        viewport: { width: 390, height: 844 },
-        hasTouch: true,
-        ...visualUse,
-      },
-    },
-    {
-      name: 'visual-desktop',
-      testMatch: ['tests/visual/**/*.spec.ts'],
-      use: {
-        ...devices['Desktop Chrome'],
-        viewport: { width: 1280, height: 800 },
-        ...visualUse,
-      },
-    },
 
-    // === Functional E2E projects (exclude visual/a11y) ===
+  // ---- Projects strictly partitioned by path/suffix ----
+  projects: [
+    // Desktop E2E ONLY
     {
-      name: 'Desktop Chrome',
-      testMatch: ['tests/e2e/**/*.spec.ts'],
-      testIgnore: ['tests/visual/**', 'tests/a11y/**'],
+      name: 'Desktop E2E',
+      testMatch: ['**/e2e/**/*.spec.ts'],
+      testIgnore: ['**/a11y/**', '**/visual/**', '**/*.a11y.spec.ts', '**/*.visual.spec.ts'],
       use: { ...devices['Desktop Chrome'] },
     },
+
+    // Mobile E2E ONLY
     {
-      name: 'Mobile Safari',
-      testMatch: ['tests/e2e/**/*.spec.ts'],
-      testIgnore: ['tests/visual/**', 'tests/a11y/**'],
-      use: { ...devices['iPhone 13'] }, // keep if you prefer 13 here
+      name: 'Mobile E2E',
+      testMatch: ['**/e2e/**/*.spec.ts'],
+      testIgnore: ['**/a11y/**', '**/visual/**', '**/*.a11y.spec.ts', '**/*.visual.spec.ts'],
+      use: { ...devices['Mobile Safari'] },
     },
 
-    // === A11Y project (only a11y folder) ===
+    // A11Y ONLY
     {
       name: 'A11Y',
-      testMatch: ['tests/a11y/**/*.a11y.spec.ts'],
+      testMatch: ['**/a11y/**/*.spec.ts', '**/*.a11y.spec.ts'],
+      testIgnore: ['**/visual/**'],
       use: { ...devices['Desktop Chrome'] },
+    },
+
+    // Visual ONLY
+    {
+      name: 'Visual Desktop',
+      testMatch: ['**/visual/**/*.spec.ts', '**/*.visual.spec.ts'],
+      testIgnore: ['**/a11y/**'],
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'Visual Mobile',
+      testMatch: ['**/visual/**/*.spec.ts', '**/*.visual.spec.ts'],
+      testIgnore: ['**/a11y/**'],
+      use: { ...devices['Mobile Safari'] },
     },
   ],
 });

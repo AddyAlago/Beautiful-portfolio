@@ -24,3 +24,14 @@ allure-report/
 *.njsproj
 *.sln
 *.sw?
+# Playwright artifacts
+playwright-report/
+blob-report/
+test-results/
+
+# Local status + site builds
+status/
+_site/
+
+# OS cruft (you already have .DS_Store)
+Thumbs.db

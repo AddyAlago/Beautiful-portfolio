@@ -1,0 +1,71 @@
+name: Core Tests (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      suite:
+        description: "a11y | desktop | mobile | visual"
+        required: true
+        type: string
+      projects:
+        description: "Comma-separated Playwright projects (optional)"
+        required: false
+        type: string
+        default: ""
+      node_version:
+        required: false
+        type: string
+        default: "20"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      SUITE: ${{ inputs.suite }}
+      ALLURE_RESULTS_DIR: allure-results/${{ inputs.suite }}
+      PLAYWRIGHT_HTML_DIR: playwright-report/${{ inputs.suite }}
+      CI: "true"
+
+    steps:
+      - uses: actions/checkout@v4
+        with: { persist-credentials: false }
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node_version }}
+          cache: "npm"
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Run ${{ env.SUITE }} tests
+        run: |
+          export ALLURE_RESULTS_DIR="${{ env.ALLURE_RESULTS_DIR }}"
+          EXTRA=""
+          if [ -n "${{ inputs.projects }}" ]; then
+            IFS=',' read -ra PROJS <<< "${{ inputs.projects }}"
+            for p in "${PROJS[@]}"; do EXTRA="$EXTRA --project $p"; done
+          fi
+          # ⬇️ Add your suite-specific filters here if needed (grep/tags/globs)
+          npx playwright test $EXTRA --reporter=line,allure-playwright --output="${{ env.PLAYWRIGHT_HTML_DIR }}"
+
+      - name: Upload Playwright HTML (per-suite)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report-${{ env.SUITE }}
+          path: ${{ env.PLAYWRIGHT_HTML_DIR }}
+          if-no-files-found: ignore
+          retention-days: 7
+
+      - name: Upload Allure results (per-suite)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results-${{ env.SUITE }}
+          path: ${{ env.ALLURE_RESULTS_DIR }}
+          if-no-files-found: ignore
+          retention-days: 7

@@ -54,7 +54,7 @@ reporter: isCI
       name: 'Mobile E2E',
       testMatch: ['**/e2e/**/*.spec.ts'],
       testIgnore: ['**/a11y/**', '**/visual/**', '**/*.a11y.spec.ts', '**/*.visual.spec.ts'],
-      use: { ...devices['Mobile Safari'] },
+      use: { ...devices['Pixel 7'] },
     },
 
     // A11Y ONLY

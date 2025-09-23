@@ -1,0 +1,60 @@
+name: Visual (compare)
+
+on:
+  pull_request:
+    paths:
+      - "tests/visual/**"
+      - "src/**"
+      - "package-lock.json"
+      - "package.json"
+      - "playwright.config.ts"
+  workflow_dispatch: {}
+
+jobs:
+  visual:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+
+      - name: Build (if needed)
+        run: |
+          if [ -f package.json ] && jq -er '.scripts.build' package.json > /dev/null 2>&1; then
+            npm run build
+          fi
+
+      - name: Start app (if your tests need it)
+        if: ${{ hashFiles('package.json') != '' }}
+        run: |
+          if jq -er '.scripts.start' package.json > /dev/null 2>&1; then
+            nohup npm run start >/dev/null 2>&1 &
+            sleep 3
+          fi
+
+      - name: Visual compare - mobile
+        run: npx playwright test --project=visual-mobile
+
+      - name: Visual compare - desktop
+        run: npx playwright test --project=visual-desktop
+
+      - name: Upload artifacts (reports & diffs)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: visual-artifacts
+          path: |
+            test-results/**
+            playwright-report/**

@@ -1,11 +1,19 @@
 // playwright.config.ts
 import { defineConfig, devices } from '@playwright/test';
 
+
 const isCI = !!process.env.CI;
 const DEV_HOST = '127.0.0.1';
 const DEV_PORT = 5173;
 const PREVIEW_HOST = '127.0.0.1';
 const PREVIEW_PORT = 4173;
+const visualUse = {
+  // Deterministic knobs for screenshots
+  locale: 'en-US',
+  timezoneId: 'UTC',
+  colorScheme: 'light' as const,   
+  animations: 'disabled' as const, 
+};
 
 export default defineConfig({
   testDir: 'tests',
@@ -56,7 +64,29 @@ export default defineConfig({
             timeout: 180_000,
             reuseExistingServer: true,
           }),
-projects: [
+  projects: [
+    // === Visual projects (mobile + desktop) ===
+  {
+    name: 'visual-mobile',
+    testMatch: ['tests/visual/**/*.spec.ts'],
+    use: {
+      ...devices['iPhone 12'],
+      deviceScaleFactor: 3,
+      viewport: { width: 390, height: 844 },
+      hasTouch: true,
+      ...visualUse,
+    },
+  },
+  {
+    name: 'visual-desktop',
+    testMatch: ['tests/visual/**/*.spec.ts'],
+    use: {
+      ...devices['Desktop Chrome'],
+      viewport: { width: 1280, height: 800 },
+      ...visualUse,
+    },
+  },
+
   {
     name: 'Desktop Chrome',
     use: { ...devices['Desktop Chrome'] },

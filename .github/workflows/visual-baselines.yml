@@ -1,14 +1,14 @@
-name: Generate visual baselines
+name: Visual (generate baselines)
 
 on:
   workflow_dispatch:
     inputs:
-      project:
-        description: "Playwright project to run (e.g., visual-mobile)"
+      projects:
+        description: "Comma-separated visual projects"
         required: false
-        default: "visual-mobile"
+        default: "visual-mobile,visual-desktop"
       testPath:
-        description: "Path or glob of visual tests"
+        description: "Glob of visual tests"
         required: false
         default: "tests/visual/**/*.spec.ts"
 
@@ -32,30 +32,36 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      # (Optional, but recommended) set consistent env for visual runs
-      - name: Env sanity
+      - name: Build (if needed)
         run: |
-          echo "TZ=UTC" >> $GITHUB_ENV
-          echo "LANG=en_US.UTF-8" >> $GITHUB_ENV
+          if [ -f package.json ] && jq -er '.scripts.build' package.json > /dev/null 2>&1; then
+            npm run build
+          fi
+
+      - name: Start app (if your tests need it)
+        run: |
+          if jq -er '.scripts.start' package.json > /dev/null 2>&1; then
+            nohup npm run start >/dev/null 2>&1 &
+            sleep 3
+          fi
 
       - name: Generate snapshots (update mode)
         env:
-          # force CI mode if your config gates on process.env.CI
           CI: "true"
         run: |
-          npx playwright test "${{ github.event.inputs.testPath }}" \
-            --project="${{ github.event.inputs.project }}" \
-            --update-snapshots
+          IFS=',' read -ra PROJ <<< "${{ github.event.inputs.projects }}"
+          for p in "${PROJ[@]}"; do
+            echo "Updating snapshots for project: $p"
+            npx playwright test "${{ github.event.inputs.testPath }}" --project="$p" --update-snapshots
+          done
 
-      # Upload both the committed snapshot folders and the test-results (actual/diff)
       - name: Upload snapshot artifacts
         uses: actions/upload-artifact@v4
         with:
           name: visual-snapshots-${{ github.run_id }}
-          # Most common snapshot locations; include both patterns:
           path: |
             tests/**/-snapshots/**
             tests/**/__snapshots__/**
-            playwright-report/**
             test-results/**
+            playwright-report/**
           if-no-files-found: warn

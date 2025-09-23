@@ -63,15 +63,6 @@ jobs:
         with:
           path: artifacts
         continue-on-error: true
-
-      - name: Debug: show downloaded artifacts
-        if: always()
-        run: |
-          echo "Artifacts tree (depth 3):"
-          find artifacts -maxdepth 3 -type d -print || true
-          echo "Files that look like allure results:"
-          find artifacts -type f \( -name '*.json' -o -name '*.xml' \) | sed 's/^/  /' | head -n 200 || true
-
       - name: Merge allure-results (robust)
         shell: bash
         run: |

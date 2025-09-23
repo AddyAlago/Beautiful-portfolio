@@ -27,31 +27,17 @@ export default defineConfig({
     timeout: 120 * 1000,
   },
 
-  reporter: isCI
-    ? [
-        ['github'],
-        ['html', { open: 'never' }],
-        [
-          'allure-playwright',
-          {
-            resultsDir: process.env.ALLURE_RESULTS_DIR || 'allure-results',
-            detail: true,
-            suiteTitle: true,
-          },
-        ],
-      ]
-    : [
-        ['list'],
-        ['html', { open: 'never' }],
-        [
-          'allure-playwright',
-          {
-            resultsDir: process.env.ALLURE_RESULTS_DIR || 'allure-results',
-            detail: true,
-            suiteTitle: true,
-          },
-        ],
-      ],
+reporter: isCI
+  ? [
+      ['github'],
+      ['html', { open: 'never', outputFolder: process.env.PLAYWRIGHT_HTML_DIR || 'playwright-report' }],
+      ['allure-playwright', { resultsDir: process.env.ALLURE_RESULTS_DIR || 'allure-results', detail: true, suiteTitle: true }],
+    ]
+  : [
+      ['list'],
+      ['html', { open: 'never', outputFolder: process.env.PLAYWRIGHT_HTML_DIR || 'playwright-report' }],
+      ['allure-playwright', { resultsDir: process.env.ALLURE_RESULTS_DIR || 'allure-results', detail: true, suiteTitle: true }],
+    ],
 
   // ---- Projects strictly partitioned by path/suffix ----
   projects: [

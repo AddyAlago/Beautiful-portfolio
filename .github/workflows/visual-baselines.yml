@@ -1,24 +1,40 @@
-name: Visual (generate baselines)
+# .github/workflows/update-visual-baselines.yml
+name: Update visual baselines (PR)
 
 on:
   workflow_dispatch:
     inputs:
-      projects:
-        description: "Comma-separated visual projects"
+      base_branch:
+        description: "Base branch to open the PR against"
+        required: true
+        default: "main"
+      commit_message:
+        description: "Commit message for snapshot updates"
         required: false
-        default: "visual-mobile,visual-desktop"
+        default: "chore: update visual baselines from CI"
+      run_e2e:
+        description: "Also run Desktop/Mobile E2E (no snapshot updates)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  baselines:
+  update-baselines:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
+    env:
+      # Force prod-like preview for more stable screenshots
+      PLAYWRIGHT_WEB_SERVER_CMD: "npm run build && npm run preview -- --port 5173"
+      PLAYWRIGHT_BASE_URL: "http://localhost:5173"
+      CI: "true"
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.base_branch }}
           persist-credentials: false
 
       - name: Setup Node
@@ -27,61 +43,52 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Install deps
-        run: npm ci
-
-      - name: Install Playwright browsers
-        run: npx playwright install --with-deps
-
-      - name: Set stable env
+      - name: Install deps & browsers
         run: |
-          echo "TZ=UTC" >> $GITHUB_ENV
-          echo "LANG=en_US.UTF-8" >> $GITHUB_ENV
+          npm ci
+          npx playwright install --with-deps
 
-      # Sanity: show what Playwright projects CI sees
-      - name: List Playwright projects
-        run: npx playwright test --list
+      # --- Update snapshots per visual project ---
+      - name: Update Visual Desktop baselines
+        run: npx playwright test --project="Visual Desktop" --update-snapshots
 
-      # Clear any envs that could inject a regex filter
-      - name: Clear PW_* env vars
-        run: |
-          unset PW_GREP || true
-          unset PW_TEST_FILTER || true
+      - name: Update Visual Mobile baselines
+        run: npx playwright test --project="Visual Mobile" --update-snapshots
 
-      # Generate snapshots for each requested project.
-      - name: Generate snapshots (update mode)
-        env:
-          CI: "true"
-        run: |
-          set -euo pipefail
-          IFS=',' read -ra PROJ_ARR <<< "${{ github.event.inputs.projects }}"
-          for p in "${PROJ_ARR[@]}"; do
-            p_trimmed="$(echo "$p" | xargs)"
-            if [ -z "$p_trimmed" ]; then
-              echo "Skipping empty project entry"
-              continue
-            fi
-            echo "Updating snapshots for project: $p_trimmed"
-            npx playwright test --project="$p_trimmed" --update-snapshots
-          done
+      # (Optional) run E2E just to sanity check the preview build
+      - name: Run Desktop E2E (sanity)
+        if: ${{ inputs.run_e2e }}
+        run: npx playwright test --project="Desktop E2E"
+      - name: Run Mobile E2E (sanity)
+        if: ${{ inputs.run_e2e }}
+        run: npx playwright test --project="Mobile E2E"
 
-      # Collect updated snapshots into a single folder for artifact upload
-      - name: Collect snapshots
+      # Upload changed snapshots for quick inspection
+      - name: Upload __screenshots__ artifact
         if: always()
-        run: |
-          set -euo pipefail
-          mkdir -p collected-snapshots
-          find tests -type d -name "*-snapshots" -print0 | xargs -0 -I{} cp -r "{}" collected-snapshots/ || true
-          find tests -type d -name "__snapshots__" -print0 | xargs -0 -I{} cp -r "{}" collected-snapshots/ || true
-          echo "Collected snapshots:"
-          ls -R collected-snapshots || true
-
-      - name: Upload snapshot artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: visual-snapshots-${{ github.run_id }}
+          name: updated-snapshots
           path: |
-            collected-snapshots/**
-            test-results/**
-            playwright-report/**
-          if-no-files-found: warn
+            **/__screenshots__/**
+            **/*-snapshots/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # Create a PR with the changes
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: ${{ inputs.commit_message }}
+          title: ${{ inputs.commit_message }}
+          body: |
+            This PR updates visual baselines generated on Ubuntu CI.
+
+            - Visual Desktop ✅
+            - Visual Mobile ✅
+
+            Review the updated images in the **updated-snapshots** artifact if needed.
+          branch: chore/update-visual-baselines
+          base: ${{ inputs.base_branch }}
+          delete-branch: true

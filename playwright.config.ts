@@ -39,6 +39,8 @@ reporter: isCI
       ['allure-playwright', { resultsDir: process.env.ALLURE_RESULTS_DIR || 'allure-results', detail: true, suiteTitle: true }],
     ],
 
+    
+
   // ---- Projects strictly partitioned by path/suffix ----
   projects: [
     // Desktop E2E ONLY

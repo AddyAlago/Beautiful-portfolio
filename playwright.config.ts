@@ -8,7 +8,12 @@ const PREVIEW_HOST = '127.0.0.1';
 const PREVIEW_PORT = 4173;
 
 export default defineConfig({
-  testDir: 'tests/e2e/specs',
+  testDir: 'tests',
+    testMatch: [
+    '**/e2e/**/*.spec.ts',
+    '**/visual/**/*.spec.ts',
+    '**/a11y/**/*.spec.ts',
+  ],
   fullyParallel: true,
   timeout: 30_000,
   retries: isCI ? 2 : 0,
@@ -68,4 +73,5 @@ projects: [
     testMatch: ['**/*a11y.spec.ts'],
   },
 ]
+
 });

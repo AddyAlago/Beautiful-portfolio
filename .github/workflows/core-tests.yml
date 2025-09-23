@@ -44,6 +44,13 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
+      #  Override server only for visual suite
+      - name: Use preview server for visual suite
+        if: ${{ env.SUITE == 'visual' }}
+        run: |
+          echo "PLAYWRIGHT_WEB_SERVER_CMD=npm run build && npm run preview -- --port 5173" >> $GITHUB_ENV
+          echo "PLAYWRIGHT_BASE_URL=http://localhost:5173" >> $GITHUB_ENV
+
       - name: Run ${{ env.SUITE }} tests
         run: |
           if [ -z "${{ inputs.projects }}" ]; then

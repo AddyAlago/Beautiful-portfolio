@@ -1,4 +1,3 @@
-# .github/workflows/update-visual-baselines.yml
 name: Update visual baselines (PR)
 
 on:
@@ -25,9 +24,6 @@ jobs:
   update-baselines:
     runs-on: ubuntu-latest
     env:
-      # Force prod-like preview for more stable screenshots
-      PLAYWRIGHT_WEB_SERVER_CMD: "npm run build && npm run preview -- --port 5173"
-      PLAYWRIGHT_BASE_URL: "http://localhost:5173"
       CI: "true"
 
     steps:
@@ -48,23 +44,40 @@ jobs:
           npm ci
           npx playwright install --with-deps
 
-      # --- Update snapshots per visual project ---
+      # ── Use preview (prod-like) only for visual snapshots ──
+      - name: Use preview server for visual suite
+        run: |
+          echo "PLAYWRIGHT_WEB_SERVER_CMD=npm run build && npm run preview -- --port 5173" >> $GITHUB_ENV
+          echo "PLAYWRIGHT_BASE_URL=http://localhost:5173" >> $GITHUB_ENV
+          echo "Using preview server for visual baselines:"
+          echo "  PLAYWRIGHT_WEB_SERVER_CMD=$PLAYWRIGHT_WEB_SERVER_CMD"
+          echo "  PLAYWRIGHT_BASE_URL=$PLAYWRIGHT_BASE_URL"
+
       - name: Update Visual Desktop baselines
         run: npx playwright test --project="Visual Desktop" --update-snapshots
 
       - name: Update Visual Mobile baselines
         run: npx playwright test --project="Visual Mobile" --update-snapshots
 
-      # (Optional) run E2E just to sanity check the preview build
+      # (Optional) switch back to dev server before E2E sanity runs
+      - name: Clear preview overrides (back to dev) for E2E
+        if: ${{ inputs.run_e2e }}
+        run: |
+          # Remove the overrides so playwright.config falls back to npm run dev
+          sed -i '/PLAYWRIGHT_WEB_SERVER_CMD=/d' "$GITHUB_ENV" || true
+          sed -i '/PLAYWRIGHT_BASE_URL=/d' "$GITHUB_ENV" || true
+          echo "Cleared preview overrides; E2E will use dev server."
+
       - name: Run Desktop E2E (sanity)
         if: ${{ inputs.run_e2e }}
         run: npx playwright test --project="Desktop E2E"
+
       - name: Run Mobile E2E (sanity)
         if: ${{ inputs.run_e2e }}
         run: npx playwright test --project="Mobile E2E"
 
-      # Upload changed snapshots for quick inspection
-      - name: Upload __screenshots__ artifact
+      # Helpful: upload snapshots and any generated diffs
+      - name: Upload updated snapshots & diffs
         if: always()
         uses: actions/upload-artifact@v4
         with:
@@ -72,10 +85,11 @@ jobs:
           path: |
             **/__screenshots__/**
             **/*-snapshots/**
+            test-results/**/screenshots/**
+            test-results/**/__screenshots__/**
           if-no-files-found: ignore
           retention-days: 7
 
-      # Create a PR with the changes
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v6
         with:
@@ -83,12 +97,12 @@ jobs:
           commit-message: ${{ inputs.commit_message }}
           title: ${{ inputs.commit_message }}
           body: |
-            This PR updates visual baselines generated on Ubuntu CI.
+            This PR updates **visual baselines** generated on Ubuntu CI (prod-like preview build).
 
             - Visual Desktop ✅
             - Visual Mobile ✅
 
-            Review the updated images in the **updated-snapshots** artifact if needed.
+            See artifact **updated-snapshots** for expected/actual/diff where applicable.
           branch: chore/update-visual-baselines
           base: ${{ inputs.base_branch }}
           delete-branch: true

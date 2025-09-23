@@ -13,6 +13,13 @@ on:
 jobs:
   visual:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [visual-mobile, visual-desktop]
 
     steps:
       - name: Checkout
@@ -30,31 +37,38 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
+      - name: Set stable env
+        run: |
+          echo "TZ=UTC" >> $GITHUB_ENV
+          echo "LANG=en_US.UTF-8" >> $GITHUB_ENV
+
+      # Optional: build if your tests need it
       - name: Build (if needed)
         run: |
-          if [ -f package.json ] && jq -er '.scripts.build' package.json > /dev/null 2>&1; then
+          set -euo pipefail
+          if [ -f package.json ] && jq -er '.scripts.build' package.json >/dev/null 2>&1; then
             npm run build
           fi
 
-      - name: Start app (if your tests need it)
-        if: ${{ hashFiles('package.json') != '' }}
+      # Optional: start dev server if your tests expect it running
+      - name: Start app (if needed)
         run: |
-          if jq -er '.scripts.start' package.json > /dev/null 2>&1; then
+          set -euo pipefail
+          if jq -er '.scripts.start' package.json >/dev/null 2>&1; then
             nohup npm run start >/dev/null 2>&1 &
             sleep 3
           fi
 
-      - name: Visual compare - mobile
-        run: npx playwright test --project=visual-mobile
-
-      - name: Visual compare - desktop
-        run: npx playwright test --project=visual-desktop
+      - name: Visual compare - ${{ matrix.project }}
+        run: |
+          set -euo pipefail
+          npx playwright test --project="${{ matrix.project }}"
 
       - name: Upload artifacts (reports & diffs)
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: visual-artifacts
+          name: visual-artifacts-${{ matrix.project }}
           path: |
             test-results/**
             playwright-report/**

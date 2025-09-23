@@ -7,14 +7,13 @@ on:
         description: "Comma-separated visual projects"
         required: false
         default: "visual-mobile,visual-desktop"
-      testPath:
-        description: "Glob of visual tests"
-        required: false
-        default: "tests/visual/**/*.spec.ts"
 
 jobs:
   baselines:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
 
     steps:
       - name: Checkout
@@ -32,15 +31,17 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
+      # Optional: build if your tests need it
       - name: Build (if needed)
         run: |
-          if [ -f package.json ] && jq -er '.scripts.build' package.json > /dev/null 2>&1; then
+          if [ -f package.json ] && jq -er '.scripts.build' package.json >/dev/null 2>&1; then
             npm run build
           fi
 
-      - name: Start app (if your tests need it)
+      # Optional: start app if your tests expect it running already
+      - name: Start app (if needed)
         run: |
-          if jq -er '.scripts.start' package.json > /dev/null 2>&1; then
+          if jq -er '.scripts.start' package.json >/dev/null 2>&1; then
             nohup npm run start >/dev/null 2>&1 &
             sleep 3
           fi
@@ -49,10 +50,14 @@ jobs:
         env:
           CI: "true"
         run: |
+          set -euo pipefail
           IFS=',' read -ra PROJ <<< "${{ github.event.inputs.projects }}"
           for p in "${PROJ[@]}"; do
-            echo "Updating snapshots for project: $p"
-            npx playwright test "${{ github.event.inputs.testPath }}" --project="$p" --update-snapshots
+            p_trimmed="$(echo "$p" | xargs)"
+            if [ -n "$p_trimmed" ]; then
+              echo "Updating snapshots for project: $p_trimmed"
+              npx playwright test --project="$p_trimmed" --update-snapshots
+            fi
           done
 
       - name: Upload snapshot artifacts

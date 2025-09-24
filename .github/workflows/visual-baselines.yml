@@ -42,6 +42,9 @@ jobs:
       - name: Install deps & browsers
         run: |
           npm ci
+          # Install Playwright and dependencies, plus fonts for stable rendering
+          sudo apt-get update
+          sudo apt-get install -y fonts-liberation fonts-dejavu fonts-noto-core
           npx playwright install --with-deps
 
       # ── Use preview (prod-like) only for visual snapshots ──
@@ -54,10 +57,10 @@ jobs:
           echo "  PLAYWRIGHT_BASE_URL=$PLAYWRIGHT_BASE_URL"
 
       - name: Update Visual Desktop baselines
-        run: npx playwright test --project="Visual Desktop" --update-snapshots
+        run: npx playwright test --project="Visual Desktop" --update-snapshots --workers=1
 
       - name: Update Visual Mobile baselines
-        run: npx playwright test --project="Visual Mobile" --update-snapshots
+        run: npx playwright test --project="Visual Mobile" --update-snapshots --workers=1
 
       # (Optional) switch back to dev server before E2E sanity runs
       - name: Clear preview overrides (back to dev) for E2E
@@ -76,17 +79,25 @@ jobs:
         if: ${{ inputs.run_e2e }}
         run: npx playwright test --project="Mobile E2E"
 
-      # Helpful: upload snapshots and any generated diffs
-      - name: Upload updated snapshots & diffs
+      # Upload updated snapshots (expected baselines)
+      - name: Upload updated snapshots
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: updated-snapshots
+          name: visual-snapshots
           path: |
-            **/__screenshots__/**
-            **/*-snapshots/**
-            test-results/**/screenshots/**
-            test-results/**/__screenshots__/**
+            tests/**/__screenshots__/**
+            tests/**/*-snapshots/**
+          if-no-files-found: ignore
+          retention-days: 7
+
+      # Upload Playwright report (contains actual & diff images)
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report
           if-no-files-found: ignore
           retention-days: 7
 
@@ -102,7 +113,8 @@ jobs:
             - Visual Desktop ✅
             - Visual Mobile ✅
 
-            See artifact **updated-snapshots** for expected/actual/diff where applicable.
+            - **visual-snapshots** artifact: updated expected baselines
+            - **playwright-report** artifact: actual/diff images for review
           branch: chore/update-visual-baselines
           base: ${{ inputs.base_branch }}
           delete-branch: true

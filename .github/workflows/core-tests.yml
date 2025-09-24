@@ -41,10 +41,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # install system fonts for stable rasterization (only for visuals)
+      - name: Install fonts (visual suite)
+        if: ${{ env.SUITE == 'visual' }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fonts-liberation fonts-dejavu fonts-noto-core
+
       - name: Install Playwright browsers
         run: npx playwright install --with-deps
 
-      #  Override server only for visual suite
+      # Override server only for visual suite (build + preview = prod-like)
       - name: Use preview server for visual suite
         if: ${{ env.SUITE == 'visual' }}
         run: |
@@ -57,14 +64,23 @@ jobs:
             echo "ERROR: 'projects' input must be provided (comma-separated project names)."
             exit 1
           fi
+
           export ALLURE_RESULTS_DIR="${{ env.ALLURE_RESULTS_DIR }}"
+
           EXTRA=""
           IFS=',' read -ra PROJS <<< "${{ inputs.projects }}"
           for p in "${PROJS[@]}"; do EXTRA="$EXTRA --project \"$p\""; done
-          # Reporters are set in playwright.config.ts; don’t override here
-          eval npx playwright test $EXTRA --output="${{ env.PLAYWRIGHT_HTML_DIR }}"
 
-      
+          # NEW: force single worker for visual suite to reduce render jitter
+          if [ "${{ env.SUITE }}" = "visual" ]; then
+            WORKERS="--workers=1"
+          else
+            WORKERS=""
+          fi
+
+          # Reporters are set in playwright.config.ts; don't override here
+          eval npx playwright test $EXTRA $WORKERS --output="${{ env.PLAYWRIGHT_HTML_DIR }}"
+
       # --- Upload artifacts ---
       - name: Upload Playwright HTML (per-suite)
         if: always()

@@ -13,11 +13,25 @@ export default defineConfig({
   // ✅ Base URL used by page.goto('/') across ALL projects
   use: {
     baseURL: process.env.PLAYWRIGHT_BASE_URL || DEFAULT_DEV_URL,
+    
+
+    locale: 'en-US',           
+    timezoneId: 'UTC',         
+    colorScheme: 'light',      
+
+
+    // NEW: Keep artifacts only when useful (less noise locally, richer on CI)
+    screenshot: isCI ? 'only-on-failure' : 'off',     
+    video:      isCI ? 'retain-on-failure' : 'off',   
+    trace:      isCI ? 'retain-on-failure' : 'off',   
+
+    // NEW: More stable rasterization in containers
+    launchOptions: { args: ['--disable-dev-shm-usage', '--font-render-hinting=none'] }, // NEW
     // (optional) trace/screenshot/video defaults go here
   },
 
 
-  
+
   // ✅ Start the app for tests. By default, use Vite dev on 5173.
   webServer: {
     command:

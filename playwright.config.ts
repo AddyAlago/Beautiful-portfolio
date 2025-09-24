@@ -16,8 +16,9 @@ export default defineConfig({
     // (optional) trace/screenshot/video defaults go here
   },
 
+
+  
   // ✅ Start the app for tests. By default, use Vite dev on 5173.
-  //    If you prefer preview in CI, set PLAYWRIGHT_WEB_SERVER_CMD in the workflow.
   webServer: {
     command:
       process.env.PLAYWRIGHT_WEB_SERVER_CMD ||
@@ -25,6 +26,7 @@ export default defineConfig({
     url: process.env.PLAYWRIGHT_BASE_URL || DEFAULT_DEV_URL,
     reuseExistingServer: !isCI,
     timeout: 120 * 1000,
+    
   },
 
 reporter: isCI

@@ -67,28 +67,48 @@ jobs:
         uses: dawidd6/action-download-artifact@v3
         with:
           repo: AddyAlago/custom-api-testing-showcase
-          workflow: api-tests.yml
+          workflow: api-tests.yml          # file name is fine; can also be the workflow "name"
           branch: main
           name_is_regexp: true
-          name: ^allure-api-.+
+          name: ^allure-api-.+             # e.g., allure-api-smoke, etc.
           path: ./allure-raw/api
           github_token: ${{ secrets.API_REPO_PAT }}
+          workflow_conclusion: ""          # <-- allow any (success/failure), not just success
+          
         continue-on-error: true
+      - name: Inspect downloaded API artifacts
+        run: |
+          echo "==== ls -laR ./allure-raw/api ===="
+          ls -laR ./allure-raw/api || true
+          echo "==== potential allure-results dirs ===="
+          find ./allure-raw/api -type d -name 'allure-results*' -print || true
+
 
       - name: Merge allure-results (robust)
         shell: bash
         run: |
+          set -e
           shopt -s nullglob
           mkdir -p merged-allure-results
-          for d in artifacts/**/allure-results artifacts/allure-results-* ./allure-raw/api; do
+
+          # UI artifacts from this repo (as before)
+          for d in artifacts/**/allure-results artifacts/allure-results-*; do
             if [ -d "$d" ]; then
-              echo "Merging: $d"
+              echo "Merging UI: $d"
               cp -r "$d"/* merged-allure-results/ || true
             fi
           done
+
+          # API artifacts from the other repo (nested)
+          while IFS= read -r -d '' d; do
+            echo "Merging API: $d"
+            cp -r "$d"/* merged-allure-results/ || true
+          done < <(find ./allure-raw/api -type d -name 'allure-results*' -print0 2>/dev/null)
+
           echo "Merged case files count:"
           find merged-allure-results -maxdepth 1 -type f \( -name '*.json' -o -name '*.xml' \) ! -name 'categories.json' ! -name 'executor.json' | wc -l
           ls -la merged-allure-results || true
+
 
       - name: Summarize sources (UI + API)
         run: |

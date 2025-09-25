@@ -29,14 +29,13 @@ jobs:
     uses: ./.github/workflows/core-tests.yml
     with:
       suite: ${{ matrix.suite }}
-      # Allow a manual override via workflow_dispatch input; otherwise use the matrix mapping
       projects: ${{ github.event.inputs.projects || matrix.projects }}
 
   aggregate:
     name: Aggregate Allure & Publish
     runs-on: ubuntu-latest
     needs: [ run-matrix ]
-    if: ${{ always() }}   # ✅ run even if some suites failed
+    if: ${{ always() }}
     concurrency:
       group: gh-pages-deploy
       cancel-in-progress: false
@@ -63,13 +62,25 @@ jobs:
         with:
           path: artifacts
         continue-on-error: true
+
+      - name: Download API Allure artifacts (custom-api-testing-showcase)
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          repo: AddyAlago/custom-api-testing-showcase
+          workflow: api-tests.yml
+          branch: main
+          name_is_regexp: true
+          name: ^allure-api-.+
+          path: ./allure-raw/api
+          github_token: ${{ secrets.API_REPO_PAT }}
+        continue-on-error: true
+
       - name: Merge allure-results (robust)
         shell: bash
         run: |
           shopt -s nullglob
           mkdir -p merged-allure-results
-          # copy any directory that looks like allure results
-          for d in artifacts/**/allure-results artifacts/allure-results-*; do
+          for d in artifacts/**/allure-results artifacts/allure-results-* ./allure-raw/api; do
             if [ -d "$d" ]; then
               echo "Merging: $d"
               cp -r "$d"/* merged-allure-results/ || true
@@ -79,7 +90,23 @@ jobs:
           find merged-allure-results -maxdepth 1 -type f \( -name '*.json' -o -name '*.xml' \) ! -name 'categories.json' ! -name 'executor.json' | wc -l
           ls -la merged-allure-results || true
 
-      # OPTIONAL: preserve trend history by pulling prior gh-pages history
+      - name: Summarize sources (UI + API)
+        run: |
+          echo "## 📦 Sources merged" >> $GITHUB_STEP_SUMMARY
+          ui_count=$(find artifacts -maxdepth 1 -type d -name 'allure-results-*' 2>/dev/null | wc -l | xargs)
+          echo "- UI artifacts (this repo): **$ui_count** suite folder(s)" >> $GITHUB_STEP_SUMMARY
+          if [ -d "./allure-raw/api" ] && [ -n "$(ls -A ./allure-raw/api 2>/dev/null)" ]; then
+            echo "- API artifacts (custom-api-testing-showcase): **present**" >> $GITHUB_STEP_SUMMARY
+            newest=$(find ./allure-raw/api -type f -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -1 | awk '{print $2}')
+            if [ -n "$newest" ]; then
+              ts=$(stat -c %y "$newest" 2>/dev/null || stat -f %Sm "$newest" 2>/dev/null)
+              echo "  - Latest file: \`$newest\`" >> $GITHUB_STEP_SUMMARY
+              echo "  - Last updated: **$ts**" >> $GITHUB_STEP_SUMMARY
+            fi
+          else
+            echo "- API artifacts (custom-api-testing-showcase): _not found_ (using UI-only results)" >> $GITHUB_STEP_SUMMARY
+          fi
+
       - name: Pull existing history (optional)
         run: |
           git config --global user.email "actions@users.noreply.github.com"
@@ -109,27 +136,24 @@ jobs:
               > allure-report/index.html
           fi
 
-
       - name: Prepare _site (combined, per-suite JSON, per-suite HTML)
         shell: bash
         run: |
           rm -rf _site
           mkdir -p _site/allure/combined _site/allure/json _site/playwright
-          # Combined Allure
           cp -r allure-report/* _site/allure/combined/ || true
-          # Per-suite raw JSON (for badges)
           shopt -s nullglob
           for d in artifacts/allure-results-*; do
             suite="${d##*/}"; suite="${suite#allure-results-}"
             mkdir -p "_site/allure/json/${suite}"
             cp -r "$d"/* "_site/allure/json/${suite}/" || true
           done
-          # Per-suite Playwright HTML
           for d in artifacts/playwright-report-*; do
             suite="${d##*/}"; suite="${suite#playwright-report-}"
             mkdir -p "_site/playwright/${suite}"
             cp -r "$d"/* "_site/playwright/${suite}/" || true
           done
+
       - name: Generate per-suite Allure widgets (and optional full site)
         shell: bash
         run: |
@@ -142,16 +166,9 @@ jobs:
               echo "Generating per-suite Allure for: $suite"
               rm -rf "tmp/${suite}"
               allure generate "$src" --clean -o "tmp/${suite}"
-
-              # Always publish widgets for badges:
               mkdir -p "_site/allure/${suite}"
               rm -rf "_site/allure/${suite}/widgets"
               cp -r "tmp/${suite}/widgets" "_site/allure/${suite}/widgets"
-
-              # OPTIONAL: also publish the full per-suite Allure site (uncomment if your README links to /allure/<suite>/)
-              # rm -rf "_site/allure/${suite}"
-              # mkdir -p "_site/allure/${suite}"
-              # cp -r "tmp/${suite}/"* "_site/allure/${suite}/"
             else
               echo "No allure-results for ${suite}; skipping."
             fi
@@ -172,41 +189,27 @@ jobs:
             <title>Beautiful-portfolio • Reports</title>
             <style>
               :root{ --bg:#0b1220; --panel:#111a2f; --muted:#9fb0d1; --text:#e6eefc; --link:#80b3ff; --accent:#7c5cff; --accent2:#44d4b6; --card:#0f1629; }
-              @media (prefers-color-scheme: light){
-                :root{ --bg:#f8faff; --panel:#ffffff; --muted:#5b6b86; --text:#0e1116; --link:#2a62ff; --accent:#5b3df5; --accent2:#00a389; --card:#ffffff; }
-              }
+              @media (prefers-color-scheme: light){ :root{ --bg:#f8faff; --panel:#ffffff; --muted:#5b6b86; --text:#0e1116; --link:#2a62ff; --accent:#5b3df5; --accent2:#00a389; --card:#ffffff; } }
               *{box-sizing:border-box}
-              body{
-                margin:0; font:16px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
-                color:var(--text); background:radial-gradient(80rem 60rem at 20% -10%, rgba(124, 92, 255, .25), transparent 60%),
-                                  radial-gradient(80rem 60rem at 90% 10%, rgba(68, 212, 182, .25), transparent 60%),
-                                  var(--bg);
-              }
+              body{ margin:0; font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,Noto Sans,Helvetica Neue,Arial,Apple Color Emoji,Segoe UI Emoji; color:var(--text); background:radial-gradient(80rem 60rem at 20% -10%, rgba(124,92,255,.25), transparent 60%),radial-gradient(80rem 60rem at 90% 10%, rgba(68,212,182,.25), transparent 60%), var(--bg); }
               header{ padding:48px 20px 28px; text-align:center; }
-              .title{font-size:clamp(24px, 3.2vw, 36px); margin:0 0 6px; letter-spacing:.3px}
+              .title{font-size:clamp(24px,3.2vw,36px); margin:0 0 6px; letter-spacing:.3px}
               .subtitle{margin:0; color:var(--muted); font-size:14px}
               .meta{margin-top:10px; color:var(--muted); font-size:13px}
               .meta a{color:var(--link); text-decoration:none}
               .wrap{max-width:1100px; margin:22px auto 60px; padding:0 20px}
-              h2{margin:22px 0 12px; font-size:clamp(18px, 2.2vw, 22px)}
+              h2{margin:22px 0 12px; font-size:clamp(18px,2.2vw,22px)}
               .grid{ display:grid; gap:16px; grid-template-columns: repeat( auto-fit, minmax(240px, 1fr) ); }
-              .card{
-                background:var(--card); border:1px solid rgba(255,255,255,.07);
-                border-radius:16px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,.15);
-                transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
-              }
+              .card{ background:var(--card); border:1px solid rgba(255,255,255,.07); border-radius:16px; padding:18px; box-shadow:0 6px 18px rgba(0,0,0,.15); transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
               .card:hover{ transform:translateY(-3px); box-shadow:0 10px 24px rgba(0,0,0,.22); border-color:rgba(255,255,255,.18) }
               .tag{display:inline-block; padding:2px 8px; border-radius:999px; font-size:12px; letter-spacing:.2px; margin-bottom:10px; color:#fff}
               .pw{background:linear-gradient(90deg,var(--accent), #a477ff)}
               .allure{background:linear-gradient(90deg,var(--accent2), #39b7d4)}
+              .sec{background:linear-gradient(90deg,#ff6a88, #ffb86c)}
               .card h3{margin:6px 0 8px; font-size:18px}
               .desc{margin:0 0 14px; color:var(--muted); font-size:14px; min-height:40px}
               .btns{display:flex; gap:10px; flex-wrap:wrap}
-              .btn{
-                display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:10px;
-                border:1px solid rgba(255,255,255,.14); text-decoration:none; color:var(--text); font-size:14px;
-                background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-              }
+              .btn{ display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:10px; border:1px solid rgba(255,255,255,.14); text-decoration:none; color:var(--text); font-size:14px; background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02)); }
               .btn:hover{ border-color:rgba(255,255,255,.28) }
               .muted{ color:var(--muted) }
               footer{ text-align:center; padding:28px 20px 46px; color:var(--muted); font-size:13px }
@@ -216,7 +219,7 @@ jobs:
           <body>
             <header>
               <h1 class="title">Beautiful-portfolio — Reports</h1>
-              <p class="subtitle">All suites aggregated into a single Allure, plus per-suite Playwright & Allure pages.</p>
+              <p class="subtitle">All suites aggregated into a single Allure, plus per-suite Playwright & Allure pages. API results are included in the combined Allure.</p>
               <div class="meta">
                 Run <strong>#${{ github.run_number }}</strong> on <strong>${{ github.ref_name }}</strong> ·
                 commit <strong>__SHA_SHORT__</strong> ·
@@ -231,7 +234,7 @@ jobs:
                 <article class="card" data-probe="./allure/combined/">
                   <span class="tag allure">Allure</span>
                   <h3>All Suites — Combined</h3>
-                  <p class="desc">Unified Allure report with trend history.</p>
+                  <p class="desc">Unified Allure report with trend history (includes API + UI suites).</p>
                   <div class="btns"><a class="btn" href="./allure/combined/">Open Allure</a></div>
                 </article>
               </section>
@@ -244,18 +247,31 @@ jobs:
                 <article class="card" data-probe="./playwright/visual/"><span class="tag pw">Playwright</span><h3>Visual</h3><p class="desc">Visual regression reports.</p><div class="btns"><a class="btn" href="./playwright/visual/">Open report</a></div></article>
               </section>
 
-              <h2>Allure Raw JSON (Per-Suite)</h2>
+              <h2>API & Security</h2>
+              <section class="grid">
+                <article class="card">
+                  <span class="tag allure">Allure</span>
+                  <h3>API Tests (included in Combined)</h3>
+                  <p class="desc">Your API smoke/regression/contract/negative are merged into the Combined Allure above.</p>
+                  <div class="btns"><a class="btn" href="./allure/combined/">Open Combined Allure</a></div>
+                </article>
+                <article class="card" data-probe="https://AddyAlago.github.io/custom-api-testing-showcase/zap/">
+                  <span class="tag sec">Security</span>
+                  <h3>OWASP ZAP (API repo)</h3>
+                  <p class="desc">Latest baseline scan for the API mock service.</p>
+                  <div class="btns"><a class="btn" href="https://AddyAlago.github.io/custom-api-testing-showcase/zap/" target="_blank" rel="noopener">Open ZAP report</a></div>
+                </article>
+              </section>
 
-            <section class="grid">
-              <article class="card" data-probe="./allure/desktop/widgets/summary.json">
-                <span class="tag allure">Allure</span><h3>Desktop</h3>
-                <p class="desc">Raw Allure widget JSON (summary).</p>
-                <div class="btns"><a class="btn" href="./allure/desktop/widgets/summary.json">Open JSON</a></div>
-              </article>
-              <article class="card" data-probe="./allure/mobile/widgets/summary.json">…</article>
-              <article class="card" data-probe="./allure/a11y/widgets/summary.json">…</article>
-              <article class="card" data-probe="./allure/visual/widgets/summary.json">…</article>
-            </section>
+              <h2>Allure Raw JSON (Per-Suite)</h2>
+              <section class="grid">
+                <article class="card" data-probe="./allure/desktop/widgets/summary.json"><span class="tag allure">Allure</span><h3>Desktop</h3><p class="desc">Raw Allure widget JSON (summary).</p><div class="btns"><a class="btn" href="./allure/desktop/widgets/summary.json">Open JSON</a></div></article>
+                <article class="card" data-probe="./allure/mobile/widgets/summary.json"><span class="tag allure">Allure</span><h3>Mobile</h3><p class="desc">Raw Allure widget JSON (summary).</p><div class="btns"><a class="btn" href="./allure/mobile/widgets/summary.json">Open JSON</a></div></article>
+                <article class="card" data-probe="./allure/a11y/widgets/summary.json"><span class="tag allure">Allure</span><h3>A11Y</h3><p class="desc">Raw Allure widget JSON (summary).</p><div class="btns"><a class="btn" href="./allure/a11y/widgets/summary.json">Open JSON</a></div></article>
+                <article class="card" data-probe="./allure/visual/widgets/summary.json"><span class="tag allure">Allure</span><h3>Visual</h3><p class="desc">Raw Allure widget JSON (summary).</p><div class="btns"><a class="btn" href="./allure/visual/widgets/summary.json">Open JSON</a></div></article>
+              </section>
+
+            </main>
 
             <footer>
               <span class="muted">Built automatically by GitHub Actions.</span>
@@ -267,8 +283,8 @@ jobs:
                 for (const card of cards){
                   const url = card.getAttribute('data-probe');
                   try {
-                    const res = await fetch(url, { method: 'HEAD' });
-                    if (!res.ok) card.classList.add('hidden');
+                    const res = await fetch(url, { method: 'HEAD', mode: 'no-cors' });
+                    // if CORS blocks status, still keep card; this probe is best-effort
                   } catch {
                     card.classList.add('hidden');
                   }

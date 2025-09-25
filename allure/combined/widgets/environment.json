@@ -1,1 +1,1 @@
-[]
+[{"values":["API"],"name":"SUITE"},{"values":["smoke"],"name":"SUBSUITE"},{"values":["http://localhost:8000"],"name":"BASE_URL"}]

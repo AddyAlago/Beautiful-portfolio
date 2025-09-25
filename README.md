@@ -1,9 +1,23 @@
 # Beautiful Portfolio
-![Desktop tests](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/desktop/widgets/summary.json&logo=allure&label=desktop%20tests)
-![Mobile tests](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/mobile/widgets/summary.json&logo=allure&label=mobile%20tests)
-![A11Y tests](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/a11y/widgets/summary.json&logo=allure&label=a11y)
-![Visual tests](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/visual/widgets/summary.json&logo=allure&label=visual)
-![All suites](https://img.shields.io/endpoint?url=https://addyalago.github.io/Beautiful-portfolio/allure/combined/data/widgets/summary.json&logo=allure&label=all%20suites)
+<!-- Desktop -->
+![desktop passed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Faddyalago.github.io%2FBeautiful-portfolio%2Fallure%2Fdesktop%2Fwidgets%2Fsummary.json&query=%24.statistic.passed&label=desktop%20passed&logo=playwright)
+![desktop failed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Faddyalago.github.io%2FBeautiful-portfolio%2Fallure%2Fdesktop%2Fwidgets%2Fsummary.json&query=%24.statistic.failed&label=desktop%20failed&logo=playwright)
+![desktop broken](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Faddyalago.github.io%2FBeautiful-portfolio%2Fallure%2Fdesktop%2Fwidgets%2Fsummary.json&query=%24.statistic.broken&label=desktop%20broken&logo=playwright)
+
+<!-- Mobile -->
+![mobile passed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Faddyalago.github.io%2FBeautiful-portfolio%2Fallure%2Fmobile%2Fwidgets%2Fsummary.json&query=%24.statistic.passed&label=mobile%20passed&logo=playwright)
+![mobile failed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Faddyalago.github.io%2FBeautiful-portfolio%2Fallure%2Fmobile%2Fwidgets%2Fsummary.json&query=%24.statistic.failed&label=mobile%20failed&logo=playwright)
+![mobile broken](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Faddyalago.github.io%2FBeautiful-portfolio%2Fallure%2Fmobile%2Fwidgets%2Fsummary.json&query=%24.statistic.broken&label=mobile%20broken&logo=playwright)
+
+<!-- A11Y -->
+![a11y passed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Faddyalago.github.io%2FBeautiful-portfolio%2Fallure%2Fa11y%2Fwidgets%2Fsummary.json&query=%24.statistic.passed&label=a11y%20passed&logo=playwright)
+![a11y failed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Faddyalago.github.io%2FBeautiful-portfolio%2Fallure%2Fa11y%2Fwidgets%2Fsummary.json&query=%24.statistic.failed&label=a11y%20failed&logo=playwright)
+![a11y broken](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Faddyalago.github.io%2FBeautiful-portfolio%2Fallure%2Fa11y%2Fwidgets%2Fsummary.json&query=%24.statistic.broken&label=a11y%20broken&logo=playwright)
+
+<!-- Visual -->
+![visual passed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Faddyalago.github.io%2FBeautiful-portfolio%2Fallure%2Fvisual%2Fwidgets%2Fsummary.json&query=%24.statistic.passed&label=visual%20passed&logo=playwright)
+![visual failed](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Faddyalago.github.io%2FBeautiful-portfolio%2Fallure%2Fvisual%2Fwidgets%2Fsummary.json&query=%24.statistic.failed&label=visual%20failed&logo=playwright)
+![visual broken](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Faddyalago.github.io%2FBeautiful-portfolio%2Fallure%2Fvisual%2Fwidgets%2Fsummary.json&query=%24.statistic.broken&label=visual%20broken&logo=playwright)
 
 
 

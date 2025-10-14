@@ -6,7 +6,7 @@ import { createPortal } from "react-dom";
 const navItems = [
   { name: "Home", href: "#home" },
   { name: "About", href: "#about" },
-  { name: "Skills", href: "#skills" },
+  { name: "My Career", href: "#career" },
   { name: "Projects", href: "#projects" },
   { name: "Contact", href: "#contact" },
   { name: "Tests", href: "https://addyalago.github.io/Beautiful-portfolio/" },

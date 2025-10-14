@@ -70,7 +70,7 @@ export const AboutSection = () => {
                 <div className="text-left">
                   <h4 className="font-semibold text-lg">People Management</h4>
                   <p className="text-muted-foreground">
-                    I excel in people management. I pride myself on being a mentor and a leader that puts his team's career development first.
+                    I excel in people management. I pride myself on being a mentor and a leader that puts his team's career development first. This enables me to get the best effort from my team.
                   </p>
                 </div>
               </div>
@@ -84,7 +84,7 @@ export const AboutSection = () => {
                 <div className="text-left">
                   <h4 className="font-semibold text-lg">Well Rounded</h4>
                   <p className="text-muted-foreground">
-                    Quality is achieved by more than just testing, I am a certfieid scrum master (SCM) as well as a certified project manager (CSPO) which enables me to take a holistic approach to software quality.
+                    Quality is achieved by more than just testing. I take a holistic approach to quality. I am a certfied scrum master (SCM) as well as a certified project manager (CSPO). Broad understanding of different roles allows me to take a cross functional approach to quality.
                   </p>
                 </div>
               </div>

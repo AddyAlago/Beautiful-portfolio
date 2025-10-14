@@ -3,10 +3,11 @@ import { ThemeToggle } from "../components/ThemeToggle";
 import { StarBackground } from "@/components/StarBackground";
 import { HomeSection } from "../components/HomeSection";
 import { AboutSection } from "../components/AboutSection";
-import { SkillsSection } from "../components/SkillsSection";
+import Career from "../components/Career";
 import { ProjectsSection } from "../components/ProjectsSection";
 import { ContactSection } from "../components/ContactSection";
 import { Footer } from "../components/Footer";
+
 
 export const Home = () => {
   return (
@@ -22,7 +23,7 @@ export const Home = () => {
       <main>
         <HomeSection />
         <AboutSection />
-        <SkillsSection />
+        <Career />
         <ProjectsSection />
         <ContactSection />
       </main>

@@ -2,7 +2,7 @@
 import { test, expect, Page } from '@playwright/test';
 import { HomePage } from '../pages/HomePage';
 
-const IDS = ['about', 'projects', 'skills', 'contact'] as const;
+const IDS = ['about', 'projects', 'career', 'contact'] as const;
 
 async function nearestSectionId(page: Page, ids: readonly string[]) {
   return page.evaluate((idsIn) => {

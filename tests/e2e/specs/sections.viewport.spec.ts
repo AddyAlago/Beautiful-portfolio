@@ -1,7 +1,7 @@
 // tests/e2e/specs/sections.viewport.spec.ts
 import { test, expect, Page } from '@playwright/test';
 
-const IDS = ['about', 'projects', 'skills', 'contact'] as const;
+const IDS = ['about', 'projects', 'career', 'contact'] as const;
 
 function sel(id: string) {
   return `[data-testid="section-${id}"], #${id}`;

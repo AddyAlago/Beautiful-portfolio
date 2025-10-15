@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+
+    /* duplicate alias if your vite.config.ts imports "@/..." */
+    "baseUrl": ".",
+    "paths": { "@/*": ["src/*"] },
+
+    "types": ["node"]
+  },
+  "include": ["vite.config.ts", "scripts/**/*"]
+}

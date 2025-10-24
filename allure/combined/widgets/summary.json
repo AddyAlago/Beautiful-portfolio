@@ -1,1 +1,1 @@
-{"reportName":"Allure Report","testRuns":[],"statistic":{"failed":4,"broken":1,"skipped":4,"passed":40,"unknown":0,"total":49},"time":{"start":1761342662820,"stop":1761342752507,"duration":89687,"minDuration":135,"maxDuration":30756,"sumDuration":88699}}
+{"reportName":"API • ratelimit","testRuns":[],"statistic":{"failed":5,"broken":1,"skipped":4,"passed":45,"unknown":0,"total":55},"time":{"start":1761343288028,"stop":1761344254400,"duration":966372,"minDuration":3,"maxDuration":30751,"sumDuration":88634}}

@@ -1,0 +1,1 @@
+{"detail":[{"type":"missing","loc":["body","name"],"msg":"Field required","input":{"email":"not-an-email"}},{"type":"value_error","loc":["body","email"],"msg":"value is not a valid email address: An email address must have an @-sign.","input":"not-an-email","ctx":{"reason":"An email address must have an @-sign."}}]}

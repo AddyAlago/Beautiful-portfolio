@@ -91,7 +91,7 @@ jobs:
           shopt -s nullglob
           mkdir -p merged-allure-results
 
-          # UI artifacts from this repo (as before)
+          echo "=== Merge UI artifacts from this repo ==="
           for d in artifacts/**/allure-results artifacts/allure-results-*; do
             if [ -d "$d" ]; then
               echo "Merging UI: $d"
@@ -99,15 +99,28 @@ jobs:
             fi
           done
 
-          # API artifacts from the other repo (nested)
+          echo "=== Merge API artifacts from external repo ==="
+          # Case A: nested "allure-results" directories (keep this for compatibility)
           while IFS= read -r -d '' d; do
-            echo "Merging API: $d"
+            echo "Merging API (nested dir): $d"
             cp -r "$d"/* merged-allure-results/ || true
           done < <(find ./allure-raw/api -type d -name 'allure-results*' -print0 2>/dev/null)
 
-          echo "Merged case files count:"
-          find merged-allure-results -maxdepth 1 -type f \( -name '*.json' -o -name '*.xml' \) ! -name 'categories.json' ! -name 'executor.json' | wc -l
+          # Case B: flat layout (what you have) — copy contents of each artifact directory
+          for d in ./allure-raw/api/*; do
+            if [ -d "$d" ]; then
+              echo "Merging API (flat dir): $d"
+              cp -r "$d"/* merged-allure-results/ || true
+            fi
+          done
+
+          echo "=== Post-merge counts ==="
+          echo "result files:"
+          find merged-allure-results -maxdepth 1 -type f \
+            \( -name '*-result.json' -o -name 'test-result.json' -o -name '*-container.json' -o -name 'categories.json' -o -name 'executor.json' \) \
+            | wc -l
           ls -la merged-allure-results || true
+
 
 
       - name: Summarize sources (UI + API)

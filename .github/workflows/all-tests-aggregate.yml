@@ -69,27 +69,26 @@ jobs:
           repo: AddyAlago/custom-api-testing-showcase
           workflow: api-tests.yml              # must match the filename in the API repo
           name_is_regexp: true
-          name: ^allure-api-.+                 # e.g., allure-api-contract, allure-api-property
+          name: ^allure-api-.+                 # e.g., allure-api-contract, allure-api-negative, etc.
           path: ./allure-raw/api
           github_token: ${{ secrets.API_REPO_PAT }}
           workflow_conclusion: ""              # include failed runs too
-          search_artifacts: true               # ✅ find latest across branches
-
+          search_artifacts: true               # find latest across branches
         continue-on-error: true
 
       - name: Inspect downloaded API artifacts
+        shell: bash
         run: |
-          echo "==== tree of ./allure-raw/api ===="
+          echo "==== ls -laR ./allure-raw/api ===="
           ls -laR ./allure-raw/api || true
 
-          echo "==== counts of Allure result files (flat or nested) ===="
+          echo "==== counts of Allure-like files (recursive) ===="
           find ./allure-raw/api -type f \
-            \( -name '*-result.json' -o -name '*-container.json' -o -name 'test-result.json' -o -name 'executor.json' -o -name 'categories.json' \) \
+            \( -name '*-result.json' -o -name '*-container.json' -o -name 'test-result.json' -o -name 'categories.json' -o -name 'executor.json' -o -name '*.xml' \) \
             | wc -l
 
-          echo "==== sample files ===="
-          find ./allure-raw/api -type f -maxdepth 3 -printf '%P\n' | head -n 50 || true
-
+          echo "==== sample relative paths ===="
+          find ./allure-raw/api -type f -printf '%P\n' | head -n 80 || true
 
       - name: Merge allure-results (robust)
         shell: bash
@@ -106,31 +105,26 @@ jobs:
             fi
           done
 
-          echo "=== Merge API artifacts from external repo ==="
-          # Case A: nested "allure-results" directories (keep this for compatibility)
+          echo "=== Merge API artifacts from external repo (recursive flatten) ==="
+          # Case A: nested "allure-results*" directories
           while IFS= read -r -d '' d; do
             echo "Merging API (nested dir): $d"
             cp -r "$d"/* merged-allure-results/ || true
           done < <(find ./allure-raw/api -type d -name 'allure-results*' -print0 2>/dev/null)
 
-          # Case B: flat layout (what you have) — copy contents of each artifact directory
-          for d in ./allure-raw/api/*; do
-            if [ -d "$d" ]; then
-              echo "Merging API (flat dir): $d"
-              cp -r "$d"/* merged-allure-results/ || true
-            fi
-          done
+          # Case B: flat or unexpected layouts — copy any plausible Allure files from anywhere
+          find ./allure-raw/api -type f \
+            \( -name '*-result.json' -o -name '*-container.json' -o -name 'test-result.json' -o -name 'categories.json' -o -name 'executor.json' -o -name '*.xml' \) \
+            -print0 | xargs -0 -I{} cp "{}" merged-allure-results/ || true
 
-          echo "=== Post-merge counts ==="
-          echo "result files:"
-          find merged-allure-results -maxdepth 1 -type f \
-            \( -name '*-result.json' -o -name 'test-result.json' -o -name '*-container.json' -o -name 'categories.json' -o -name 'executor.json' \) \
+          echo "=== Post-merge counts (recursive) ==="
+          find merged-allure-results -type f \
+            \( -name '*-result.json' -o -name 'test-result.json' -o -name '*-container.json' -o -name 'categories.json' -o -name 'executor.json' -o -name '*.xml' \) \
             | wc -l
           ls -la merged-allure-results || true
 
-
-
       - name: Summarize sources (UI + API)
+        shell: bash
         run: |
           echo "## 📦 Sources merged" >> $GITHUB_STEP_SUMMARY
           ui_count=$(find artifacts -maxdepth 1 -type d -name 'allure-results-*' 2>/dev/null | wc -l | xargs)
@@ -161,7 +155,8 @@ jobs:
         shell: bash
         run: |
           set -e
-          has_cases=$(find merged-allure-results -maxdepth 1 -type f \( -name '*.json' -o -name '*.xml' \) ! -name 'categories.json' ! -name 'executor.json' | wc -l)
+          # Look recursively for any JSON/XML except the non-case metadata files.
+          has_cases=$(find merged-allure-results -type f \( -name '*.json' -o -name '*.xml' \) ! -name 'categories.json' ! -name 'executor.json' | wc -l)
           echo "has_cases=$has_cases"
           if [ "$has_cases" -gt 0 ]; then
             rm -rf allure-report
@@ -311,7 +306,6 @@ jobs:
                 </div>
               </article>
 
-
               <h2>Allure Raw JSON (Per-Suite)</h2>
               <section class="grid">
                 <article class="card" data-probe="./allure/desktop/widgets/summary.json"><span class="tag allure">Allure</span><h3>Desktop</h3><p class="desc">Raw Allure widget JSON (summary).</p><div class="btns"><a class="btn" href="./allure/desktop/widgets/summary.json">Open JSON</a></div></article>
@@ -368,4 +362,3 @@ jobs:
           echo "- JSON A11Y: https://addyalago.github.io/Beautiful-portfolio/allure/json/a11y/" >> $GITHUB_STEP_SUMMARY
           echo "- JSON Visual: https://addyalago.github.io/Beautiful-portfolio/allure/json/visual/" >> $GITHUB_STEP_SUMMARY
           echo "- k6: https://addyalago.github.io/custom-api-testing-showcase/k6/" >> $GITHUB_STEP_SUMMARY
-

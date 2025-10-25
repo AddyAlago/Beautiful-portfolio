@@ -67,22 +67,35 @@ jobs:
         uses: dawidd6/action-download-artifact@v3
         with:
           repo: AddyAlago/custom-api-testing-showcase
-          workflow: api-tests.yml          # file name is fine; can also be the workflow "name"
-          branch: main
+          workflow: api-tests.yml              # must match the filename in the API repo
           name_is_regexp: true
-          name: ^allure-api-.+             # e.g., allure-api-smoke, etc.
+          name: ^allure-api-.+                 # e.g., allure-api-contract, allure-api-property
           path: ./allure-raw/api
           github_token: ${{ secrets.API_REPO_PAT }}
-          workflow_conclusion: ""          # <-- allow any (success/failure), not just success
-          
-        continue-on-error: true
-      - name: Inspect downloaded API artifacts
-        run: |
-          echo "==== ls -laR ./allure-raw/api ===="
-          ls -laR ./allure-raw/api || true
-          echo "==== potential allure-results dirs ===="
-          find ./allure-raw/api -type d -name 'allure-results*' -print || true
+          workflow_conclusion: ""              # include failed runs too
+          search_artifacts: true               # ✅ find latest across branches
 
+        continue-on-error: true
+
+      - name: Inspect downloaded API artifacts
+        if: always()
+        run: |
+          echo "==== tree of ./allure-raw/api ===="
+          if [ -d "./allure-raw/api" ]; then
+            find ./allure-raw/api -maxdepth 3 -type d -print
+          else
+            echo "⚠️  ./allure-raw/api directory missing or empty"
+          fi
+          echo "==== counts per allure-results dir ===="
+          found_any=false
+          while IFS= read -r -d '' d; do
+            found_any=true
+            c=$(find "$d" -maxdepth 1 -type f \( -name '*.json' -o -name '*.xml' \) | wc -l)
+            echo "$d -> $c files"
+          done < <(find ./allure-raw/api -type d -name 'allure-results*' -print0 2>/dev/null)
+          if [ "$found_any" = false ]; then
+            echo "::warning::No allure-results directories found in ./allure-raw/api"
+          fi
 
       - name: Merge allure-results (robust)
         shell: bash

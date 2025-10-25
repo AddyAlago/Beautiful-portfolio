@@ -161,7 +161,9 @@ jobs:
           echo "- UI artifacts (this repo): **$ui_count** suite folder(s)" >> $GITHUB_STEP_SUMMARY
           if [ -d "./allure-raw/api" ] && [ -n "$(ls -A ./allure-raw/api 2>/dev/null)" ]; then
             echo "- API artifacts (custom-api-testing-showcase): **present**" >> $GITHUB_STEP_SUMMARY
-            newest=$(find ./allure-raw/api -type f -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -1 | awk '{print $2}')
+              set +o pipefail
+              newest=$(find ./allure-raw/api -type f -printf '%T@ %p\n' 2>/dev/null | sort -nr | head -1 | awk '{print $2}')
+              set -o pipefail
             if [ -n "$newest" ]; then
               ts=$(stat -c %y "$newest" 2>/dev/null || stat -f %Sm "$newest" 2>/dev/null)
               echo "  - Latest file: \`$newest\`" >> $GITHUB_STEP_SUMMARY

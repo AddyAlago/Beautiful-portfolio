@@ -1,1 +1,0 @@
-{"detail":[{"type":"string_too_short","loc":["body","name"],"msg":"String should have at least 1 character","input":"","ctx":{"min_length":1}},{"type":"missing","loc":["body","email"],"msg":"Field required","input":{"name":""}}]}

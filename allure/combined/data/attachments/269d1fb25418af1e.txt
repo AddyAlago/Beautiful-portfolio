@@ -1,0 +1,1 @@
+{'Accept': 'application/json', 'Authorization': 'Bearer secret-token', 'Idempotency-Key': '26fe38e7-71c9-4d20-99a4-2d9ff3acf08a', 'x-idempotency-key': '26fe38e7-71c9-4d20-99a4-2d9ff3acf08a'}

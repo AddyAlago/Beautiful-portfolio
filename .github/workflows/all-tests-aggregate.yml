@@ -78,24 +78,18 @@ jobs:
         continue-on-error: true
 
       - name: Inspect downloaded API artifacts
-        if: always()
         run: |
           echo "==== tree of ./allure-raw/api ===="
-          if [ -d "./allure-raw/api" ]; then
-            find ./allure-raw/api -maxdepth 3 -type d -print
-          else
-            echo "⚠️  ./allure-raw/api directory missing or empty"
-          fi
-          echo "==== counts per allure-results dir ===="
-          found_any=false
-          while IFS= read -r -d '' d; do
-            found_any=true
-            c=$(find "$d" -maxdepth 1 -type f \( -name '*.json' -o -name '*.xml' \) | wc -l)
-            echo "$d -> $c files"
-          done < <(find ./allure-raw/api -type d -name 'allure-results*' -print0 2>/dev/null)
-          if [ "$found_any" = false ]; then
-            echo "::warning::No allure-results directories found in ./allure-raw/api"
-          fi
+          ls -laR ./allure-raw/api || true
+
+          echo "==== counts of Allure result files (flat or nested) ===="
+          find ./allure-raw/api -type f \
+            \( -name '*-result.json' -o -name '*-container.json' -o -name 'test-result.json' -o -name 'executor.json' -o -name 'categories.json' \) \
+            | wc -l
+
+          echo "==== sample files ===="
+          find ./allure-raw/api -type f -maxdepth 3 -printf '%P\n' | head -n 50 || true
+
 
       - name: Merge allure-results (robust)
         shell: bash

@@ -63,18 +63,48 @@ jobs:
           path: artifacts
         continue-on-error: true
 
-      - name: Download API Allure artifacts (custom-api-testing-showcase)
+      # API
+      - name: Download API Allure artifacts (custom-api-testing-showcase - api-tests.yml)
         uses: dawidd6/action-download-artifact@v3
         with:
           repo: AddyAlago/custom-api-testing-showcase
-          workflow: api-tests.yml              # must match the filename in the API repo
+          workflow: api-tests.yml
           name_is_regexp: true
-          name: ^allure-api-.+                 # e.g., allure-api-contract, allure-api-negative, etc.
+          name: ^allure-results-api$
           path: ./allure-raw/api
           github_token: ${{ secrets.API_REPO_PAT }}
-          workflow_conclusion: ""              # include failed runs too
-          search_artifacts: true               # find latest across branches
+          workflow_conclusion: ""     # include failed runs too
+          search_artifacts: true      # search latest across branches
         continue-on-error: true
+
+      # Property
+      - name: Download Property Allure artifacts (custom-api-testing-showcase - property-tests.yml)
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          repo: AddyAlago/custom-api-testing-showcase
+          workflow: property-tests.yml
+          name_is_regexp: true
+          name: ^allure-results-property$
+          path: ./allure-raw/api
+          github_token: ${{ secrets.API_REPO_PAT }}
+          workflow_conclusion: ""
+          search_artifacts: true
+        continue-on-error: true
+
+      # Schemathesis
+      - name: Download Schemathesis Allure artifacts (custom-api-testing-showcase - schemathesis.yml)
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          repo: AddyAlago/custom-api-testing-showcase
+          workflow: schemathesis.yml
+          name_is_regexp: true
+          name: ^allure-results-schemathesis$
+          path: ./allure-raw/api
+          github_token: ${{ secrets.API_REPO_PAT }}
+          workflow_conclusion: ""
+          search_artifacts: true
+        continue-on-error: true
+
 
       - name: Inspect downloaded API artifacts
         shell: bash

@@ -295,6 +295,15 @@ jobs:
                   <div class="btns"><a class="btn" href="https://AddyAlago.github.io/custom-api-testing-showcase/zap/" target="_blank" rel="noopener">Open ZAP report</a></div>
                 </article>
               </section>
+              <article class="card" data-probe="https://addyalago.github.io/custom-api-testing-showcase/k6/">
+                <span class="tag sec">Performance</span>
+                <h3>k6 Smoke</h3>
+                <p class="desc">Latest k6 smoke test results (HTML report hosted in the API repo).</p>
+                <div class="btns">
+                  <a class="btn" href="https://addyalago.github.io/custom-api-testing-showcase/k6/" target="_blank" rel="noopener">Open k6 report</a>
+                </div>
+              </article>
+
 
               <h2>Allure Raw JSON (Per-Suite)</h2>
               <section class="grid">
@@ -351,3 +360,5 @@ jobs:
           echo "- JSON Mobile: https://addyalago.github.io/Beautiful-portfolio/allure/json/mobile/" >> $GITHUB_STEP_SUMMARY
           echo "- JSON A11Y: https://addyalago.github.io/Beautiful-portfolio/allure/json/a11y/" >> $GITHUB_STEP_SUMMARY
           echo "- JSON Visual: https://addyalago.github.io/Beautiful-portfolio/allure/json/visual/" >> $GITHUB_STEP_SUMMARY
+          echo "- k6: https://addyalago.github.io/custom-api-testing-showcase/k6/" >> $GITHUB_STEP_SUMMARY
+

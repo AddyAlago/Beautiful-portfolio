@@ -1,1 +1,1 @@
-{"reportName":"API • ratelimit","testRuns":[],"statistic":{"failed":4,"broken":1,"skipped":4,"passed":40,"unknown":0,"total":49},"time":{"start":1761358639900,"stop":1761358763369,"duration":123469,"minDuration":139,"maxDuration":30742,"sumDuration":88384}}
+{"reportName":"API • ratelimit","testRuns":[],"statistic":{"failed":4,"broken":1,"skipped":4,"passed":40,"unknown":0,"total":49},"time":{"start":1761360897086,"stop":1761361091423,"duration":194337,"minDuration":140,"maxDuration":30770,"sumDuration":89811}}

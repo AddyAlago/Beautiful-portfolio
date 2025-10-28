@@ -224,8 +224,8 @@ jobs:
       - name: Generate AI PR summary (from merged Allure)
         if: always()
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}     # optional; if not set, script falls back to rules-based text
-          LLM_PROVIDER: openai                              # or "none" to disable LLM calls
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}      
+          LLM_PROVIDER: openai                               
           LLM_MODEL: gpt-4o-mini
           ALLURE_DIR: merged-allure-results                 
           ALLURE_BASE_URL: https://addyalago.github.io/Beautiful-portfolio/allure/combined/

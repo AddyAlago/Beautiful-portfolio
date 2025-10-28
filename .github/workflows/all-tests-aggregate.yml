@@ -203,6 +203,54 @@ jobs:
               > allure-report/index.html
           fi
 
+     
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Download previous AI summary (if any)
+        uses: actions/download-artifact@v4
+        with:
+          name: ai-summary-latest
+          path: ./prev-ai-summary
+        continue-on-error: true
+
+      - name: Generate AI PR summary (from merged Allure)
+        if: always()
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}     # optional; if not set, script falls back to rules-based text
+          LLM_PROVIDER: openai                              # or "none" to disable LLM calls
+          LLM_MODEL: gpt-4o-mini
+          ALLURE_DIR: merged-allure-results                 
+          ALLURE_BASE_URL: https://addyalago.github.io/Beautiful-portfolio/allure/combined/
+          CI_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PREV_SUMMARY_JSON: ./prev-ai-summary/summary.json
+        run: |
+          python scripts/ai_summary.py
+
+      - name: Post PR Summary (sticky)
+        if: github.event_name == 'pull_request'
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: "🤖 QA AI Summary"
+          message: |
+            $(cat summary.md)
+
+      - name: Upload latest AI summary (for next run deltas)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-summary-latest
+          path: summary.json
+
+
+
       - name: Prepare _site (combined, per-suite JSON, per-suite HTML)
         shell: bash
         run: |

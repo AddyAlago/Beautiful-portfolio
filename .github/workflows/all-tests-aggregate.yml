@@ -234,13 +234,22 @@ jobs:
         run: |
           python scripts/ai_summary.py
 
+      # Read summary.md into an output
+      - id: read_ai_md
+        name: Read AI summary markdown
+        shell: bash
+        run: |
+          echo 'body<<EOF' >> "$GITHUB_OUTPUT"
+          cat summary.md >> "$GITHUB_OUTPUT"
+          echo 'EOF' >> "$GITHUB_OUTPUT"
+
+      # Post sticky PR comment with the file contents
       - name: Post PR Summary (sticky)
         if: github.event_name == 'pull_request'
         uses: marocchino/sticky-pull-request-comment@v2
         with:
           header: "🤖 QA AI Summary"
-          message: |
-            $(cat summary.md)
+          message: ${{ steps.read_ai_md.outputs.body }}
 
       - name: Upload latest AI summary (for next run deltas)
         if: always()
@@ -248,7 +257,12 @@ jobs:
         with:
           name: ai-summary-latest
           path: summary.json
-
+          
+      - name: Add AI summary to run summary
+        if: always()
+        run: |
+          echo "## 🤖 QA AI Summary" >> $GITHUB_STEP_SUMMARY
+          cat summary.md >> $GITHUB_STEP_SUMMARY
 
 
       - name: Prepare _site (combined, per-suite JSON, per-suite HTML)

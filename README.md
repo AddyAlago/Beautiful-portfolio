@@ -29,6 +29,7 @@ Originally forked from the excellent [Beautiful React Tailwind Portfolio by Pedr
 
 * Modern **CI/CD**, **automated testing**, and **reporting** pipelines
 * Deep integration with **Allure Dashboards**, **Playwright**, and **GitHub Actions**
+* AI-driven Pull Request Comment Enhancements powered by OpenAI for contextual feedback
 * An end-to-end demonstration of **modern QA engineering best practices**
 
 ---

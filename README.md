@@ -21,30 +21,95 @@
 
 
 
-A modern React + Tailwind portfolio site with **production-grade automated testing**.
+# 🌐 Beautiful Portfolio — Custom QA & DevOps Enhanced Edition
+
+This is my **personal portfolio site**, built to showcase my work as a **QA Engineering Leader and Automation Architect**.
+
+Originally forked from the excellent [Beautiful React Tailwind Portfolio by Pedro Machado](https://github.com/machadop1407/beautiful-react-tailwind-portfolio), this project has been **heavily customized and expanded** to include:
+
+* Modern **CI/CD**, **automated testing**, and **reporting** pipelines
+* Deep integration with **Allure Dashboards**, **Playwright**, and **GitHub Actions**
+* An end-to-end demonstration of **modern QA engineering best practices**
 
 ---
 
-## 🚀 Quality Automation
+## 🚀 Major Enhancements
 
-This project isn’t just a portfolio — it’s a demonstration of my QA engineering philosophy:
+### 🧬 Architecture & Design
 
-- ✅ **Playwright E2E tests** covering navigation, section visibility, and contact form.
-- ✅ **Accessibility checks (axe-core)** against WCAG 2A/AA, with JSON reports uploaded to CI.
-- ✅ **Performance guardrails** to prevent regressions in page load.
-- ✅ **CI/CD integration** with GitHub Actions:
-  - Runs tests on every push and pull request.
-  - Uploads Playwright reports (HTML, traces, screenshots).
-  - Publishes `axe-report.json` when accessibility violations are detected.
+* Refactored component structure for scalability and maintainability
+* Added dynamic sections (Projects, Experience, Skills, Contact) sourced from JSON data
+* Improved Lighthouse performance, accessibility, and SEO scores
+* Implemented dark/light theme switching with persistent user preferences
+
+### 🧪 Quality Engineering & Automation
+
+* Integrated **Playwright E2E suites** for both **Desktop and Mobile** views
+* Added **A11Y (Accessibility) testing** via **Axe Core** (this is here for completeness sake, I have not done the work to fix these errors on the site and this is largely out of the scope for this portfolio)
+* Added **Visual Regression tests** for UI consistency across deployments
+* Configured **Allure Reporting** with automatic artifact publishing to GitHub Pages
+* Introduced **matrix builds** (desktop, mobile, visual, a11y) with reusable workflows
+
+### ⚙️ CI/CD & Reporting
+
+* Built **GitHub Actions pipelines** for:
+
+  * Running all test suites in parallel
+  * Aggregating and publishing **Allure reports**
+  * Deploying preview builds for every pull request
+  * Publishing live dashboards with dynamic status badges
+* Allure aggregation now supports multiple repositories (including API test showcase)
+
+### 🧮 Infrastructure & Tooling
+
+* Optimized Docker and Node.js environments for faster cold-starts
+* Configured **ESLint + Prettier** for consistent code quality
+* Added **custom GitHub Pages routing** for SPA support
+* Introduced **dynamic environment-based variables** for preview, staging, and production
 
 ---
 
-## 📊 Test Status Badge
+## 📊 Testing & Quality Metrics
 
-The badge above shows the **live status** of my end-to-end test suite:
+* **Unit / Integration:** Playwright Component Testing
+* **E2E:** Playwright (Desktop + Mobile)
+* **Accessibility:** Axe Core
+* **Visual Testing:** Playwright Snapshots
+* **API Validation:** External Allure aggregator linking API showcase results
+* **Reporting:** Allure dashboards published automatically on merge
 
-- 🟢 Green = all tests passing  
-- 🔴 Red = failing tests (check Actions tab for details)
+Each suite reports into a **unified Allure dashboard**, live at:
+🔗 [addicuss.com/allure-dashboard](https://addicuss.com/allure-dashboard) *(replace with your actual URL)*
+
+---
+
+## 🧑‍💻 Tech Stack
+
+* **Frontend:** React + Vite + Tailwind CSS
+* **Testing:** Playwright + Axe + Allure + GitHub Actions
+* **CI/CD:** GitHub Actions + Allure CLI + Firebase Hosting
+* **Visualization:** Allure Reports + Dynamic Badges
+* **Deployment:** Firebase + GitHub Pages
+
+---
+
+## 🏠 Project Lineage
+
+> This project began as a fork of
+> [**machadop1407/beautiful-react-tailwind-portfolio**](https://github.com/machadop1407/beautiful-react-tailwind-portfolio)
+> and evolved into a full **Quality Engineering demonstration platform**, showcasing
+> test automation frameworks, dashboards, and metrics-driven quality reporting.
+
+All original design credit to **Pedro Machado** — this build focuses on expanding the project’s **QA, automation, and CI/CD** capabilities.
+
+---
+
+## 💡 Future Roadmap
+
+* Add API contract and performance test results from `custom-api-testing-showcase` repo
+* Add AI-powered “bug triage insights” section using OpenAI API
+* Integrate custom Allure dashboards with JSON status endpoints
+* Add downloadable résumé generator with live CI badges
 
 ---
 
